@@ -19,18 +19,21 @@ const int initWinWidth = 600;
 /**
  * Camera and movement variables
  */
-float eye_x = 0.0f;
-float eye_y = 0.0f;
+float eye_x = 0.1f;
+float eye_y = 0.1f;
 float eye_z = 1.0f;
 
+//Where we are looking
 float at_x = 0.0f;
 float at_y = 0.0f;
-float at_z = 0.0f;
+float at_z = 1.1f;
 
 //Specify the degree that the camera has turned due to mouse movement
 //We will be using spherical coordinates
 float yzDeg, xyDeg = 0.0f;
 
+//The speed at which we move
+const float movementSpeed = 8;
 //Remember where mouse was last
 int lastMouseX = initWinWidth / 2;
 int lastMouseY = initWinHeight / 2;
@@ -59,13 +62,30 @@ void glInit() {
  */
 void keyPressed(sf::Key::Code key) {
   if (key == sf::Key::A) {
-    eye_x -= at_x/5;
+    if (at_x > 0) {
+      eye_x += -1*at_x / movementSpeed;
+      eye_z -= at_z / movementSpeed;
+    } else {
+      eye_x += at_x /movementSpeed;
+      eye_z += at_z / movementSpeed;
+    }
   } else if (key == sf::Key::D) {
-    eye_x += at_x/5;
+    //eye_z += at_y /5;
+    if (at_x > 0) {
+      eye_x += at_x / movementSpeed;
+      eye_z += at_z / movementSpeed;
+    } else {
+      eye_x += -1*at_x /movementSpeed;
+      eye_z -= at_z / movementSpeed;
+    }
   } else if (key == sf::Key::W) {
-    eye_z -= at_z/5;
+    eye_x += at_x / movementSpeed;
+    eye_y += at_y / movementSpeed;
+    eye_z -= at_z / movementSpeed;
   } else if (key == sf::Key::S) {
-    eye_z += at_z/5;
+    eye_x -= at_x / movementSpeed;
+    eye_y -= at_y / movementSpeed;
+    eye_z += at_z / movementSpeed;
   }
 }
 
@@ -74,9 +94,9 @@ void keyPressed(sf::Key::Code key) {
  * and updating where we are looking at.
  */
 void mouseMoved(int mouseX, int mouseY) {
-  if (mouseX > lastMouseX) {
+  if (mouseX > lastMouseX && xyDeg <= M_PI / 4) {
     xyDeg += .01f;
-  } else if (mouseX < lastMouseX) {
+  } else if (mouseX < lastMouseX && xyDeg > -M_PI / 4) {
     xyDeg -= .01f;
   }
 
@@ -91,7 +111,6 @@ void mouseMoved(int mouseX, int mouseY) {
 
   at_x = 5 * cos(yzDeg) * sin(xyDeg);
   at_y = 5 * sin(yzDeg);// * sin(xyDeg);
-  at_z = cos(xyDeg);
   cout << "ats: " << at_x << " " << at_y << " " << at_z << endl;
 }
 /**
@@ -129,7 +148,7 @@ void setupViewAndProjection() {
 
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
-  gluLookAt(eye_x, eye_y, eye_z, eye_x + at_x, eye_y + at_y, eye_z - 1.1, 0.0,
+  gluLookAt(eye_x, eye_y, eye_z, eye_x + at_x, eye_y + at_y, eye_z - at_z, 0.0,
       1.0f, 0.0f);
 }
 
@@ -141,10 +160,10 @@ void renderPlayerAvatar() {
   glColor4f(.1, .6, .4, 1);
 
   glBegin(GL_QUADS);
-  glVertex3f(eye_x + at_x - .1, eye_y + at_y - .1, eye_z - 1.1);
-  glVertex3f(eye_x + at_x - .1, eye_y + at_y + .1, eye_z - 1.1);
-  glVertex3f(eye_x + at_x + .1, eye_y + at_y + .1, eye_z - 1.1);
-  glVertex3f(eye_x + at_x + .1, eye_y + at_y - .1, eye_z - 1.1);
+  glVertex3f(eye_x + at_x - .1, eye_y + at_y - .1, eye_z - at_z);
+  glVertex3f(eye_x + at_x - .1, eye_y + at_y + .1, eye_z - at_z);
+  glVertex3f(eye_x + at_x + .1, eye_y + at_y + .1, eye_z - at_z);
+  glVertex3f(eye_x + at_x + .1, eye_y + at_y - .1, eye_z - at_z);
   glEnd();
 }
 void renderScene() {
