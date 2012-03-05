@@ -6,16 +6,27 @@
 
 #include <bullet/btBulletDynamicsCommon.h>
 
+
+#include "Avatar.h"
+
 using namespace std;
 
 #ifndef M_PI
 #define M_PI 3.1415926535897932384626433832795028841971693993751058209
 #endif
+
+
 /**
  * Initial window parameters
  */
 const int initWinHeight = 800;
 const int initWinWidth = 600;
+
+//Set-up the window settings and get a handle to a window
+sf::WindowSettings settings(24, 8, 2);
+sf::Window window(sf::VideoMode(initWinHeight, initWinWidth), "CS248 Rules!",
+    sf::Style::Close, settings);
+
 /**
  * Camera and movement variables
  */
@@ -34,14 +45,15 @@ float yzDeg, xyDeg = 0.0f;
 
 //The speed at which we move
 const float movementSpeed = 8;
+
 //Remember where mouse was last
 int lastMouseX = initWinWidth / 2;
 int lastMouseY = initWinHeight / 2;
 
-//Set-up the window settings and get a handle to a window
-sf::WindowSettings settings(24, 8, 2);
-sf::Window window(sf::VideoMode(initWinHeight, initWinWidth), "CS248 Rules!",
-    sf::Style::Close, settings);
+/**
+ * Creating a pointer to our avatar
+ */
+Avatar* avatar;
 
 void glInit() {
   glViewport(0, 0, window.GetWidth(), window.GetHeight());
@@ -59,7 +71,7 @@ void glInit() {
 /**
  * Moves the player's avatar
  */
-void movePlayer(sf::Key::Code key) {
+void moveCameraAndPlayer(sf::Key::Code key) {
   if (key == sf::Key::A) {
     if (at_x > 0) {
       eye_x += -1 * at_x / movementSpeed;
@@ -92,13 +104,13 @@ void movePlayer(sf::Key::Code key) {
  */
 void keyPressed(sf::Key::Code key) {
   if (key == sf::Key::A) {
-    movePlayer(key);
+    moveCameraAndPlayer(key);
   } else if (key == sf::Key::D) {
-    movePlayer(key);
+    moveCameraAndPlayer(key);
   } else if (key == sf::Key::W) {
-    movePlayer(key);
+    moveCameraAndPlayer(key);
   } else if (key == sf::Key::S) {
-    movePlayer(key);
+    moveCameraAndPlayer(key);
   }
 }
 
@@ -127,6 +139,13 @@ void mouseMoved(int mouseX, int mouseY) {
   cout << "ats: " << at_x << " " << at_y << " " << at_z << endl;
 }
 
+
+/**
+ * Clears up memory
+ */
+void cleanup(){
+  delete avatar;
+}
 /**
  * Checks the event queue and delegates appropriately
  */
@@ -135,6 +154,7 @@ void handleInput() {
   while (window.GetEvent(evt)) {
     switch (evt.Type) {
       case sf::Event::Closed:
+        cleanup();
         window.Close();
         break;
       case sf::Event::KeyPressed:
@@ -166,27 +186,12 @@ void setupViewAndProjection() {
       1.0f, 0.0f);
 }
 
-/**
- * Draws the player at center of where where the camera is looking to represent
- * the avatar
- */
-void renderPlayerAvatar() {
-  glColor4f(.1, .6, .4, 1);
-
-  glBegin(GL_QUADS);
-  glVertex3f(eye_x + at_x - .1, eye_y + at_y - .1, eye_z - at_z);
-  glVertex3f(eye_x + at_x - .1, eye_y + at_y + .1, eye_z - at_z);
-  glVertex3f(eye_x + at_x + .1, eye_y + at_y + .1, eye_z - at_z);
-  glVertex3f(eye_x + at_x + .1, eye_y + at_y - .1, eye_z - at_z);
-  glEnd();
-}
-
 void renderScene() {
   setupViewAndProjection();
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  renderPlayerAvatar();
+  avatar->render();
 
   glColor4f(.23, .25, .9, 1);
   glBegin(GL_TRIANGLES);
@@ -196,10 +201,15 @@ void renderScene() {
   glEnd();
 }
 
+void init () {
+  avatar = new Avatar(eye_x + at_x, eye_y + at_y, eye_z - 1);
+}
 int main() {
+  init();
   glInit();
   while (window.IsOpened()) {
     handleInput();
+    avatar->updatePosition(eye_x + at_x, eye_y + at_y, eye_z - 1);
     renderScene();
     window.Display();
   }

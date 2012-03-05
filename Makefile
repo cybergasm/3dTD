@@ -16,7 +16,7 @@ LIBS = -lsfml-network \
 	-lBulletCollision \
 	-lLinearMath 
 	
-OBJS = main.o
+OBJS = main.o Avatar.o
 
 all: 3dTD
 
