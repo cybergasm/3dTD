@@ -57,25 +57,23 @@ void glInit() {
 }
 
 /**
- * Takes appropriate action when keys are pressed. Actions include:
- * -Movement
+ * Moves the player's avatar
  */
-void keyPressed(sf::Key::Code key) {
+void movePlayer(sf::Key::Code key) {
   if (key == sf::Key::A) {
     if (at_x > 0) {
-      eye_x += -1*at_x / movementSpeed;
+      eye_x += -1 * at_x / movementSpeed;
       eye_z -= at_z / movementSpeed;
     } else {
-      eye_x += at_x /movementSpeed;
+      eye_x += at_x / movementSpeed;
       eye_z += at_z / movementSpeed;
     }
   } else if (key == sf::Key::D) {
-    //eye_z += at_y /5;
     if (at_x > 0) {
       eye_x += at_x / movementSpeed;
       eye_z += at_z / movementSpeed;
     } else {
-      eye_x += -1*at_x /movementSpeed;
+      eye_x += -1 * at_x / movementSpeed;
       eye_z -= at_z / movementSpeed;
     }
   } else if (key == sf::Key::W) {
@@ -86,6 +84,21 @@ void keyPressed(sf::Key::Code key) {
     eye_x -= at_x / movementSpeed;
     eye_y -= at_y / movementSpeed;
     eye_z += at_z / movementSpeed;
+  }
+}
+/**
+ * Takes appropriate action when keys are pressed by delegating
+ * to appropriate function
+ */
+void keyPressed(sf::Key::Code key) {
+  if (key == sf::Key::A) {
+    movePlayer(key);
+  } else if (key == sf::Key::D) {
+    movePlayer(key);
+  } else if (key == sf::Key::W) {
+    movePlayer(key);
+  } else if (key == sf::Key::S) {
+    movePlayer(key);
   }
 }
 
@@ -113,6 +126,7 @@ void mouseMoved(int mouseX, int mouseY) {
   at_y = 5 * sin(yzDeg);// * sin(xyDeg);
   cout << "ats: " << at_x << " " << at_y << " " << at_z << endl;
 }
+
 /**
  * Checks the event queue and delegates appropriately
  */
@@ -166,6 +180,7 @@ void renderPlayerAvatar() {
   glVertex3f(eye_x + at_x + .1, eye_y + at_y - .1, eye_z - at_z);
   glEnd();
 }
+
 void renderScene() {
   setupViewAndProjection();
 
