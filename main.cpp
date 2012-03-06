@@ -6,15 +6,14 @@
 
 #include <bullet/btBulletDynamicsCommon.h>
 
-
 #include "Avatar.h"
+#include "Camera.h"
 
 using namespace std;
 
 #ifndef M_PI
 #define M_PI 3.1415926535897932384626433832795028841971693993751058209
 #endif
-
 
 /**
  * Initial window parameters
@@ -30,6 +29,8 @@ sf::Window window(sf::VideoMode(initWinHeight, initWinWidth), "CS248 Rules!",
 /**
  * Camera and movement variables
  */
+Camera* camera;
+
 float eye_x = 0.1f;
 float eye_y = 0.1f;
 float eye_z = 1.0f;
@@ -44,7 +45,7 @@ float at_z = 1.1f;
 float yzDeg, xyDeg = 0.0f;
 
 //The speed at which we move
-const float movementSpeed = 8;
+const float movementSpeed = 60;
 
 //Remember where mouse was last
 int lastMouseX = initWinWidth / 2;
@@ -104,13 +105,13 @@ void moveCameraAndPlayer(sf::Key::Code key) {
  */
 void keyPressed(sf::Key::Code key) {
   if (key == sf::Key::A) {
-    moveCameraAndPlayer(key);
+    camera->moveLeft();
   } else if (key == sf::Key::D) {
-    moveCameraAndPlayer(key);
+    camera->moveRight();
   } else if (key == sf::Key::W) {
-    moveCameraAndPlayer(key);
+    camera->moveForward();
   } else if (key == sf::Key::S) {
-    moveCameraAndPlayer(key);
+    camera->moveBackwards();
   }
 }
 
@@ -119,7 +120,10 @@ void keyPressed(sf::Key::Code key) {
  * and updating where we are looking at.
  */
 void mouseMoved(int mouseX, int mouseY) {
-  if (mouseX > lastMouseX && xyDeg <= M_PI / 4) {
+  float deltaX = mouseX - window.GetWidth()*.5f;
+  float deltaY = mouseY - window.GetHeight()*.5f;
+  camera->rotate(deltaX, deltaY);
+  /*if (mouseX > lastMouseX && xyDeg <= M_PI / 4) {
     xyDeg += .01f;
   } else if (mouseX < lastMouseX && xyDeg > -M_PI / 4) {
     xyDeg -= .01f;
@@ -136,15 +140,15 @@ void mouseMoved(int mouseX, int mouseY) {
 
   at_x = 5 * cos(yzDeg) * sin(xyDeg);
   at_y = 5 * sin(yzDeg);// * sin(xyDeg);
-  cout << "ats: " << at_x << " " << at_y << " " << at_z << endl;
+  cout << "ats: " << at_x << " " << at_y << " " << at_z << endl;*/
 }
-
 
 /**
  * Clears up memory
  */
-void cleanup(){
+void cleanup() {
   delete avatar;
+  delete camera;
 }
 /**
  * Checks the event queue and delegates appropriately
@@ -159,7 +163,7 @@ void handleInput() {
         break;
       case sf::Event::KeyPressed:
         keyPressed(evt.Key.Code);
-        cout << "eyes: " << eye_x << " " << eye_y << " " << eye_z << endl;
+        cout << "eyes: " << camera->posX() << " " << camera->posY() << " " << camera->posZ() << endl;
         break;
       case sf::Event::MouseMoved:
         if (window.GetInput().IsMouseButtonDown(sf::Mouse::Left)) {
@@ -178,12 +182,15 @@ void handleInput() {
 void setupViewAndProjection() {
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluPerspective(90.f, 1.f, 1.f, 500.f);
+  gluPerspective(90.0f, 1.0f, 1.0f, 500.0f);
 
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
-  gluLookAt(eye_x, eye_y, eye_z, eye_x + at_x, eye_y + at_y, eye_z - at_z, 0.0,
-      1.0f, 0.0f);
+  //gluLookAt(eye_x, eye_y, eye_z, eye_x + at_x, eye_y + at_y, eye_z - at_z, 0.0,
+  //    1.0f, 0.0f);
+  gluLookAt(camera->posX(), camera->posY(), camera->posZ(),
+      camera->posX() + camera->atX(), camera->posY() + camera->atY(),
+      camera->posZ() - camera->atZ(), 0.0f, 1.0f, 0.0f);
 }
 
 void renderScene() {
@@ -201,15 +208,17 @@ void renderScene() {
   glEnd();
 }
 
-void init () {
+void init() {
   avatar = new Avatar(eye_x + at_x, eye_y + at_y, eye_z - 1);
+  camera = new Camera(1.0f, 1.0f, 500, 90, initWinHeight, initWinWidth);
 }
 int main() {
   init();
   glInit();
   while (window.IsOpened()) {
     handleInput();
-    avatar->updatePosition(eye_x + at_x, eye_y + at_y, eye_z - 1);
+    //Draw the avatar one unit away from the camera
+    avatar->updatePosition(camera->posX(), camera->posY(), camera->posZ() - camera->atZ());
     renderScene();
     window.Display();
   }
