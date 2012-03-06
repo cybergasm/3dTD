@@ -27,7 +27,6 @@ void Avatar::render() {
   glColor4f(.1, .6, .4, 1);
   glPushMatrix();
   glTranslatef(x, y, z);
-  glRotatef(-yAng * (180.0f / M_PI), sideVector.x, sideVector.y, sideVector.z);
   glRotatef(xAng * (180.0f / M_PI), 0, 1, 0);
   glTranslatef(-x, -y, -z);
 

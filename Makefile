@@ -13,12 +13,13 @@ LIBS = -lsfml-network \
 	-lsfml-window \
 	-lsfml-graphics \
 	-lsfml-system \
-	-lGLU \
 	-lBulletCollision \
 	-lBulletDynamics \
 	-lBulletCollision \
 	-lLinearMath \
-	-lassimp
+	-lassimp \
+	-lGLU \
+	-lGLEW 
 	
 OBJS = main.o Avatar.o Camera.o Shader.o
 

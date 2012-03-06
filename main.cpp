@@ -1,13 +1,11 @@
 #include <iostream>
 
-#include <GL/glu.h>
-#include <SFML/Window.hpp>
-#include <SFML/Graphics.hpp>
-
 #include <bullet/btBulletDynamicsCommon.h>
 
+#include "Framework.h"
 #include "Avatar.h"
 #include "Camera.h"
+#include "Shader.h"
 
 using namespace std;
 
@@ -51,12 +49,31 @@ float nearClip = .1f;
 float farClip = 500.0f;
 
 float aspect = initWinWidth / initWinWidth;
+
 /**
  * Avatar configuration
  */
 Avatar* avatar;
 
+/**
+ * Shaders
+ */
+
+//Shader for anything rendered as a particle system
+Shader* particleSystemShader;
+
 void glInit() {
+#ifdef FRAMEWORK_USE_GLEW
+  GLint error = glewInit();
+  if (GLEW_OK != error) {
+    std::cerr << glewGetErrorString(error) << std::endl;
+    exit(-1);
+  }
+  if (!GLEW_VERSION_2_0 || !GL_EXT_framebuffer_object) {
+    std::cerr << "This program requires OpenGL 2.0 and FBOs" << std::endl;
+    exit(-1);
+  }
+#endif
   glViewport(0, 0, window.GetWidth(), window.GetHeight());
 
   glClearDepth(1.f);
@@ -152,12 +169,16 @@ void renderScene() {
 void init() {
   avatar = new Avatar(eye_x + at_x, eye_y + at_y, eye_z - 1);
   camera = new Camera(nearClip, farClip, fov, initWinHeight, initWinWidth);
-
+  particleSystemShader = new Shader("shaders/psystem");
+  if (!particleSystemShader->loaded()) {
+    cerr << particleSystemShader->errors() << endl;
+    exit(-1);
+  }
   window.ShowMouseCursor(false);
 }
 int main() {
-  init();
   glInit();
+  init();
   while (window.IsOpened()) {
     handleInput();
     //Set the avatar position to be in front of the camera.

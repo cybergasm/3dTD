@@ -9,6 +9,7 @@
 #define AVATAR_H_
 
 #include "assimp/aiVector3D.h"
+#include "Shader.h"
 
 class Avatar {
   public:
@@ -39,6 +40,9 @@ class Avatar {
 
     //half-width/height of this avatar
     float halfSideLen;
+
+    //Shader to draw the avatar.
+    Shader* shader;
 };
 
 #endif /* AVATAR_H_ */
