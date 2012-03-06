@@ -1,0 +1,5 @@
+I consulted the code in the following places during this assignment. I specify where throughout
+the comments.
+
+### assignment 4 (camera controls)
+### assignment 3 (I riped out the shader class)

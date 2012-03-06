@@ -20,7 +20,7 @@ LIBS = -lsfml-network \
 	-lLinearMath \
 	-lassimp
 	
-OBJS = main.o Avatar.o Camera.o
+OBJS = main.o Avatar.o Camera.o Shader.o
 
 all: 3dTD
 

@@ -37,6 +37,7 @@ class Avatar {
     //we can rotate around it.
     aiVector3D sideVector;
 
+    //half-width/height of this avatar
     float halfSideLen;
 };
 
