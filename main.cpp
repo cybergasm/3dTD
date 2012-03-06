@@ -23,36 +23,36 @@ const int initWinWidth = 600;
 
 //Set-up the window settings and get a handle to a window
 sf::WindowSettings settings(24, 8, 2);
-sf::Window window(sf::VideoMode(initWinHeight, initWinWidth), "CS248 Rules!",
-    sf::Style::Close, settings);
+sf::Window window(sf::VideoMode(initWinHeight, initWinWidth),
+    "Tower Defense Rules!", sf::Style::Close, settings);
 
 /**
- * Camera and movement variables
+ * Intiial camera variables and movement
  */
 Camera* camera;
 
-float eye_x = 0.1f;
-float eye_y = 0.1f;
-float eye_z = 1.0f;
+//Where the camera initially is
+float eye_x = 0.0f;
+float eye_y = 0.0f;
+float eye_z = -1.0f;
 
-//Where we are looking
+//Where we are initially lookinglooking
 float at_x = 0.0f;
 float at_y = 0.0f;
-float at_z = 1.1f;
+float at_z = 0.0f;
 
-//Specify the degree that the camera has turned due to mouse movement
-//We will be using spherical coordinates
-float yzDeg, xyDeg = 0.0f;
+//We set this flag to make sure that moving the mouse around then trying
+//to move does not cause jumpy motion
+bool mouseReady = false;
 
-//The speed at which we move
-const float movementSpeed = 60;
+//Projection configuration
+float fov = 45;
+float nearClip = .1f;
+float farClip = 500.0f;
 
-//Remember where mouse was last
-int lastMouseX = initWinWidth / 2;
-int lastMouseY = initWinHeight / 2;
-
+float aspect = initWinWidth / initWinWidth;
 /**
- * Creating a pointer to our avatar
+ * Avatar configuration
  */
 Avatar* avatar;
 
@@ -69,36 +69,6 @@ void glInit() {
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
-/**
- * Moves the player's avatar
- */
-void moveCameraAndPlayer(sf::Key::Code key) {
-  if (key == sf::Key::A) {
-    if (at_x > 0) {
-      eye_x += -1 * at_x / movementSpeed;
-      eye_z -= at_z / movementSpeed;
-    } else {
-      eye_x += at_x / movementSpeed;
-      eye_z += at_z / movementSpeed;
-    }
-  } else if (key == sf::Key::D) {
-    if (at_x > 0) {
-      eye_x += at_x / movementSpeed;
-      eye_z += at_z / movementSpeed;
-    } else {
-      eye_x += -1 * at_x / movementSpeed;
-      eye_z -= at_z / movementSpeed;
-    }
-  } else if (key == sf::Key::W) {
-    eye_x += at_x / movementSpeed;
-    eye_y += at_y / movementSpeed;
-    eye_z -= at_z / movementSpeed;
-  } else if (key == sf::Key::S) {
-    eye_x -= at_x / movementSpeed;
-    eye_y -= at_y / movementSpeed;
-    eye_z += at_z / movementSpeed;
-  }
-}
 /**
  * Takes appropriate action when keys are pressed by delegating
  * to appropriate function
@@ -120,27 +90,10 @@ void keyPressed(sf::Key::Code key) {
  * and updating where we are looking at.
  */
 void mouseMoved(int mouseX, int mouseY) {
-  float deltaX = mouseX - window.GetWidth()*.5f;
-  float deltaY = mouseY - window.GetHeight()*.5f;
+  float deltaX = mouseX - 0.5f * window.GetWidth();
+  float deltaY = mouseY - 0.5f * window.GetHeight();
   camera->rotate(deltaX, deltaY);
-  /*if (mouseX > lastMouseX && xyDeg <= M_PI / 4) {
-    xyDeg += .01f;
-  } else if (mouseX < lastMouseX && xyDeg > -M_PI / 4) {
-    xyDeg -= .01f;
-  }
-
-  if (mouseY > lastMouseY && yzDeg >= -M_PI / 4) {
-    yzDeg -= .01f;
-  } else if (mouseY < lastMouseY && yzDeg <= M_PI / 4) {
-    yzDeg += .01f;
-  }
-
-  lastMouseX = mouseX;
-  lastMouseY = mouseY;
-
-  at_x = 5 * cos(yzDeg) * sin(xyDeg);
-  at_y = 5 * sin(yzDeg);// * sin(xyDeg);
-  cout << "ats: " << at_x << " " << at_y << " " << at_z << endl;*/
+  window.SetCursorPosition(0.5f * window.GetWidth(), 0.5f * window.GetHeight());
 }
 
 /**
@@ -163,38 +116,26 @@ void handleInput() {
         break;
       case sf::Event::KeyPressed:
         keyPressed(evt.Key.Code);
-        cout << "eyes: " << camera->posX() << " " << camera->posY() << " " << camera->posZ() << endl;
         break;
       case sf::Event::MouseMoved:
         if (window.GetInput().IsMouseButtonDown(sf::Mouse::Left)) {
-          mouseMoved(evt.MouseMove.X, evt.MouseMove.Y);
-          cout << "Degs:" << xyDeg << " " << yzDeg << endl;
+          if (!mouseReady) {
+            window.SetCursorPosition(0.5f * window.GetWidth(),
+                0.5f * window.GetHeight());
+            mouseReady = true;
+          } else {
+            mouseMoved(evt.MouseMove.X, evt.MouseMove.Y);
+          }
+        } else {
+          mouseReady = false;
         }
         break;
     }
   }
 }
 
-/**
- * Sets up our view by setting the projection parameters
- * and camera position/orientation
- */
-void setupViewAndProjection() {
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  gluPerspective(90.0f, 1.0f, 1.0f, 500.0f);
-
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
-  //gluLookAt(eye_x, eye_y, eye_z, eye_x + at_x, eye_y + at_y, eye_z - at_z, 0.0,
-  //    1.0f, 0.0f);
-  gluLookAt(camera->posX(), camera->posY(), camera->posZ(),
-      camera->posX() + camera->atX(), camera->posY() + camera->atY(),
-      camera->posZ() - camera->atZ(), 0.0f, 1.0f, 0.0f);
-}
-
 void renderScene() {
-  setupViewAndProjection();
+  camera->posCameraSetupView();
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -202,23 +143,27 @@ void renderScene() {
 
   glColor4f(.23, .25, .9, 1);
   glBegin(GL_TRIANGLES);
-  glVertex3f(-.5, 0, -1);
-  glVertex3f(.5, 0, -1);
-  glVertex3f(0, .5, -1);
+  glVertex3f(-.5, 0, 0);
+  glVertex3f(.5, 0, 0);
+  glVertex3f(0, .5, 0);
   glEnd();
 }
 
 void init() {
   avatar = new Avatar(eye_x + at_x, eye_y + at_y, eye_z - 1);
-  camera = new Camera(1.0f, 1.0f, 500, 90, initWinHeight, initWinWidth);
+  camera = new Camera(nearClip, farClip, fov, initWinHeight, initWinWidth);
+
+  window.ShowMouseCursor(false);
 }
 int main() {
   init();
   glInit();
   while (window.IsOpened()) {
     handleInput();
-    //Draw the avatar one unit away from the camera
-    avatar->updatePosition(camera->posX(), camera->posY(), camera->posZ() - camera->atZ());
+    //Set the avatar position to be in front of the camera.
+    avatar->updatePosition(camera->posX() + camera->atX(),
+        camera->posY() + camera->atY(), camera->posZ() + camera->atZ() + .1,
+        camera->totalXAngle(), camera->totalYAngle(), camera->sideDirection());
     renderScene();
     window.Display();
   }

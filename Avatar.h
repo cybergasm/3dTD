@@ -8,6 +8,8 @@
 #ifndef AVATAR_H_
 #define AVATAR_H_
 
+#include "assimp/aiVector3D.h"
+
 class Avatar {
   public:
 
@@ -24,11 +26,18 @@ class Avatar {
      */
     void render();
 
-    void updatePosition(float x_, float y_, float z_);
+    void updatePosition(float x_, float y_, float z_, float xAng_, float yAng_,
+        aiVector3D sideVec);
   private:
 
     //Position in space
-    float x, y, z;
+    float x, y, z, xAng, yAng;
+
+    //Stores what the side vector of the camera is so that
+    //we can rotate around it.
+    aiVector3D sideVector;
+
+    float halfSideLen;
 };
 
 #endif /* AVATAR_H_ */

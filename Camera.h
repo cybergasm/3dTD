@@ -20,7 +20,7 @@
 #include "assimp/aiVector3D.h"
 class Camera {
   public:
-    Camera(float aRatio, float nClip, float fClip, float fov, int wH, int wW);
+    Camera(float nClip, float fClip, float fov, int wH, int wW);
     virtual ~Camera();
 
     /**
@@ -51,7 +51,11 @@ class Camera {
     void moveDown();
 
     /**
-     * Getters for position and look point
+     * Positions the camera in space
+     */
+    void posCameraSetupView();
+    /**
+     * Getters for different parameters
      */
     float posX();
     float posY();
@@ -60,12 +64,14 @@ class Camera {
     float atX();
     float atY();
     float atZ();
+
+    float totalXAngle();
+    float totalYAngle();
   private:
 
     aiVector3D position, lookAt, upVec;
 
     //Viewing set-up parameters
-    float aspectRatio;
     float nearClip;
     float farClip;
     float fov;
@@ -79,6 +85,14 @@ class Camera {
 
     //the rate of movement
     float rateOfMovement;
+
+    //How much we have rotated total (for keeping objects
+    //oriented with the camera)
+    float totYAngle;
+    float totXAngle;
+
+    //how sensistive it is to changes in angle
+    float sensitivity;
 };
 
 #endif /* CAMERA_H_ */
