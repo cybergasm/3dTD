@@ -87,6 +87,25 @@ void glInit() {
 }
 
 /**
+ * Initialize resources relavant to the game:
+ *  - shaders
+ *  - models
+ *  - camera
+ */
+void init() {
+  particleSystemShader = new Shader("shaders/psystem");
+  if (!particleSystemShader->loaded()) {
+    cerr << particleSystemShader->errors() << endl;
+    exit(-1);
+  }
+
+  avatar = new Avatar(eye_x + at_x, eye_y + at_y, eye_z - 1);
+  avatar->setShader(particleSystemShader);
+
+  camera = new Camera(nearClip, farClip, fov, initWinHeight, initWinWidth);
+  window.ShowMouseCursor(false);
+}
+/**
  * Takes appropriate action when keys are pressed by delegating
  * to appropriate function
  */
@@ -119,6 +138,7 @@ void mouseMoved(int mouseX, int mouseY) {
 void cleanup() {
   delete avatar;
   delete camera;
+  delete particleSystemShader;
 }
 /**
  * Checks the event queue and delegates appropriately
@@ -156,7 +176,7 @@ void renderScene() {
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  avatar->render();
+  avatar->render(window.GetFrameTime());
 
   glColor4f(.23, .25, .9, 1);
   glBegin(GL_TRIANGLES);
@@ -166,16 +186,6 @@ void renderScene() {
   glEnd();
 }
 
-void init() {
-  avatar = new Avatar(eye_x + at_x, eye_y + at_y, eye_z - 1);
-  camera = new Camera(nearClip, farClip, fov, initWinHeight, initWinWidth);
-  particleSystemShader = new Shader("shaders/psystem");
-  if (!particleSystemShader->loaded()) {
-    cerr << particleSystemShader->errors() << endl;
-    exit(-1);
-  }
-  window.ShowMouseCursor(false);
-}
 int main() {
   glInit();
   init();

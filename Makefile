@@ -21,9 +21,12 @@ LIBS = -lsfml-network \
 	-lGLU \
 	-lGLEW 
 	
-OBJS = main.o Avatar.o Camera.o Shader.o
+OBJS = main.o Avatar.o Camera.o Shader.o HardwareParticleSystem.o
 
 all: 3dTD
 
 3dTD: $(OBJS)
 	g++ -g -Wall -o $@ $^ $(LIBS)
+	
+clean: 
+	rm -f *.o

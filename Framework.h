@@ -9,11 +9,6 @@
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 
-// Open Asset Import Library
-#include <assimp/assimp.hpp>
-#include <assimp/aiScene.h>
-#include <assimp/aiPostProcess.h>
-
 #include <memory>
 #include <iostream>
 

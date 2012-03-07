@@ -1,3 +1,6 @@
+uniform float currentTime;
+
+varying vec4 varyingColor;
 void main() {
-	gl_FragColor = vec4(1, 1, 0, 1);
+	gl_FragColor = varyingColor, 1;
 }
