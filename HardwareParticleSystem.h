@@ -19,18 +19,20 @@ class HardwareParticleSystem {
     /**
      * Adds a particle to the system
      */
-    void addParticle(aiVector3D vel, uint lifespan_);
+    void addParticle(aiVector3D vel, aiVector3D color, uint lifespan_);
 
     /**
      * Accessors to each value
      */
     aiVector3D particleVel(int particleNum);
+    aiVector3D particleColor(int particleNum);
     uint particleLifespan(int particleNum);
 
     /**
      * Accessor for all data
      */
     aiVector3D* particleVels();
+    aiVector3D* particleColors();
     uint* particleLifespans();
 
   private:
@@ -41,8 +43,14 @@ class HardwareParticleSystem {
     // Particles set so far
     int numParticlesSet;
 
-    // The three values that particles in our hardware particle system will need
+    /**
+     * The values that particles in our hardware particle system will need
+     */
+    //velocity
     aiVector3D* vels;
+    //color
+    aiVector3D* color;
+    //how long it lives
     uint* lifespans;
 };
 

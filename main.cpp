@@ -77,13 +77,10 @@ void glInit() {
   glViewport(0, 0, window.GetWidth(), window.GetHeight());
 
   glClearDepth(1.f);
-  glClearColor(0.6f, 0.3f, .2f, 0.f);
+  glClearColor(0.0f, 0.0f, .0f, 0.f);
 
   glEnable(GL_DEPTH_TEST);
   glDepthMask(GL_TRUE);
-
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 /**

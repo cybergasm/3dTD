@@ -70,17 +70,25 @@ class Avatar {
     //The particles of this avatar
     HardwareParticleSystem particles;
 
-    //Creates particles with random initial values
-    void initializeParticles();
-
     //Vertex array indices to draw
     std::vector<unsigned> indices;
 
+    //Where the particles start
+    std::vector<aiVector3D> positions;
     //time in avatar animation
     float aniTime;
 
     //animation duration
     unsigned int aniDuration;
+
+    //Creates particles with random initial values
+    void initializeParticles();
+
+    //generates a color out of a set for the particle
+    aiVector3D getParticleColor();
+
+    //Set the values on the gpu
+    void setParticleValues();
 };
 
 #endif /* AVATAR_H_ */
