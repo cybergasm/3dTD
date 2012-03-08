@@ -26,8 +26,8 @@ using namespace std;
   }\
 }
 
-Avatar::Avatar(float x_, float y_, float z_) :
-  x(x_), y(y_), z(z_), xAng(0.0f), yAng(0.0f), halfSideLen(.05),
+Avatar::Avatar() :
+  x(0), y(0), z(0), xAng(0.0f), yAng(0.0f), halfSideLen(.05),
       numParticles(2000), aniDuration(20), blurTimer(0), blurBuffer(0), usedBuffers(0),
       particles(numParticles, aniDuration) {
   sideVector.x = 1.0f;

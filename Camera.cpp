@@ -16,12 +16,12 @@ Camera::Camera(float nClip, float fClip, float fov_, int wH, int wW) :
       yAxisMax(.95), rateOfMovement(.1), totYAngle(0.0f), totXAngle(0.0f),
       sensitivity(1) {
   position.x = 0.1f;
-  position.y = 0.1f;
-  position.z = 1.0f;
+  position.y = 0.55f;
+  position.z = 1.5f;
 
-  lookAt.x = 0.0f;
-  lookAt.y = 0.0f;
-  lookAt.z = 1.1f;
+  lookAt.x = -.1f;
+  lookAt.y = -.25f;
+  lookAt.z = -1.0f;
   lookAt.Normalize();
 
   upVec.x = 0.0f;

@@ -21,7 +21,7 @@ LIBS = -lsfml-network \
 	-lGLU \
 	-lGLEW 
 	
-OBJS = main.o Avatar.o Camera.o Shader.o HardwareParticleSystem.o
+OBJS = main.o Avatar.o Camera.o Shader.o HardwareParticleSystem.o Maze.o MazeTile.o
 
 all: 3dTD
 

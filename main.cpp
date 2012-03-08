@@ -6,6 +6,7 @@
 #include "Avatar.h"
 #include "Camera.h"
 #include "Shader.h"
+#include "Maze.h"
 
 using namespace std;
 
@@ -29,16 +30,6 @@ sf::Window window(sf::VideoMode(initWinHeight, initWinWidth),
  */
 Camera* camera;
 
-//Where the camera initially is
-float eye_x = 0.0f;
-float eye_y = 0.0f;
-float eye_z = -1.0f;
-
-//Where we are initially lookinglooking
-float at_x = 0.0f;
-float at_y = 0.0f;
-float at_z = 0.0f;
-
 //We set this flag to make sure that moving the mouse around then trying
 //to move does not cause jumpy motion
 bool mouseReady = false;
@@ -50,6 +41,12 @@ float farClip = 500.0f;
 
 float aspect = initWinWidth / initWinWidth;
 
+
+/**
+ * Maze configuration
+ */
+Maze* maze;
+
 /**
  * Avatar configuration
  */
@@ -58,7 +55,6 @@ Avatar* avatar;
 /**
  * Shaders
  */
-
 //Shader for anything rendered as a particle system
 Shader* particleSystemShader;
 
@@ -100,10 +96,12 @@ void init() {
     exit(-1);
   }
 
-  avatar = new Avatar(eye_x + at_x, eye_y + at_y, eye_z - 1);
+  avatar = new Avatar();
   avatar->setShader(particleSystemShader);
 
   camera = new Camera(nearClip, farClip, fov, initWinHeight, initWinWidth);
+
+  maze = new Maze("lrrf");
   window.ShowMouseCursor(false);
 }
 /**
@@ -188,7 +186,7 @@ void renderScene() {
   glVertex3f(0, .5, 0);
   glEnd();
 
-  glColor4f(.5, .6, .7, 1);
+  /*glColor4f(.5, .6, .7, 1);
   glBegin(GL_QUADS);
   //top platform side
   glVertex3f(-.5, 0, -.5);
@@ -227,8 +225,8 @@ void renderScene() {
   glVertex3f(-.5, -.1, .5);
   glEnd();
 
+  glRotatef(-90, 1, 0, 0);
   glTranslatef(0, 0, 1.1);
-
   glColor4f(.5, .6, .7, 1);
   glBegin(GL_QUADS);
   //top platform side
@@ -266,9 +264,9 @@ void renderScene() {
   glVertex3f(.5, -.1, -.5);
   glVertex3f(.5, -.1, .5);
   glVertex3f(-.5, -.1, .5);
-  glEnd();
+  glEnd();*/
   glPopMatrix();
-
+  maze->render();
   avatar->render(window.GetFrameTime());
 }
 
@@ -277,7 +275,6 @@ int main() {
   init();
   while (window.IsOpened()) {
     handleInput();
-
     //Set the avatar position to be in front of the camera.
     avatar->updatePosition(camera->posX() + camera->atX(),
         camera->posY() + camera->atY(), camera->posZ() + camera->atZ() + .05,

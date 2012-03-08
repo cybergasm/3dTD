@@ -28,7 +28,7 @@ class Avatar {
      * Constructor requiring the x,y,z of the
      * avatar's center in world coordinates
      */
-    Avatar(float x_, float y_, float z_);
+    Avatar();
     virtual ~Avatar();
 
     /**
