@@ -35,6 +35,10 @@ class MazeTile {
     vector<aiVector3D> colors;
 
     /**
+     * Intiiallizes the points for the cube
+     */
+    void initVertices();
+    /**
      * The following functions add the information for each face.
      */
     void initTopFace();

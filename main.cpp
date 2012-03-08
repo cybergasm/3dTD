@@ -186,6 +186,10 @@ void renderScene() {
   glVertex3f(0, .5, 0);
   glEnd();
 
+  glPopMatrix();
+  maze->render();
+  avatar->render(window.GetFrameTime());
+
   /*glColor4f(.5, .6, .7, 1);
   glBegin(GL_QUADS);
   //top platform side
@@ -265,9 +269,6 @@ void renderScene() {
   glVertex3f(.5, -.1, .5);
   glVertex3f(-.5, -.1, .5);
   glEnd();*/
-  glPopMatrix();
-  maze->render();
-  avatar->render(window.GetFrameTime());
 }
 
 int main() {
