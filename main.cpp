@@ -188,10 +188,12 @@ int main() {
   init();
   while (window.IsOpened()) {
     handleInput();
+
     //Set the avatar position to be in front of the camera.
     avatar->updatePosition(camera->posX() + camera->atX(),
         camera->posY() + camera->atY(), camera->posZ() + camera->atZ() + .1,
         camera->totalXAngle(), camera->totalYAngle(), camera->sideDirection());
+
     renderScene();
     window.Display();
   }
