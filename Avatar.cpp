@@ -126,7 +126,7 @@ void Avatar::render(float framerate) {
 
   //Here we make a check to see if it is time to clear this buffer
   //Basically every multiple of the buffer time passed we clear the buffer
-  if (blurTimer % (8*blurBuffer+1) == 0) {
+  if (blurTimer % (16*blurBuffer+1) == 0) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   }
   //Create a vector holding the position of the avatar
