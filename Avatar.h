@@ -6,6 +6,8 @@
  *  and pass it in to the shader assuming it will know how to transform the vertices
  *  given that each vertex is given a velocity attribute that represents initial state.
  *
+ *  This avatar also performs motion blur on itself as it is moving.
+ *
  *  Created on: Mar 5, 2012
  *      Author: emint
  */
@@ -69,6 +71,15 @@ class Avatar {
 
     //animation duration
     unsigned int aniDuration;
+
+    //blur timer
+    unsigned int blurTimer;
+
+    //current blur buffer
+    unsigned int blurBuffer;
+
+    //number of buffers used
+    unsigned int usedBuffers;
 
     //The particles of this avatar
     HardwareParticleSystem particles;

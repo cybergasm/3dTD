@@ -34,11 +34,14 @@ void main() {
   //How far have we moved? The mod ensures we 'die' and start back where
   //we started
   vec4 moved = ((time%span))*vec4(velocityIn, 0);
+  vec4 maxMoved = duration*vec4(velocityIn, 0);
+  float ratio = 1 - length(moved) / length(maxMoved);
   
   //Get transformed position and then move how much we had to move
   gl_Position = (gl_ProjectionMatrix * gl_ModelViewMatrix * vec4(positionIn, 1)) + moved;
   
+  
   //Modulate the color depending on how far we are from the center and make ourselves get more 
   //translucent as we die.
-  varyingColor = vec4(min(color.r, length(moved)), color.b, color.g, 1 - (time%span)/duration);
+  varyingColor = vec4(ratio*color.r, ratio*color.b, ratio*color.g, 1 - (time%span)/duration);
 }

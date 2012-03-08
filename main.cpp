@@ -79,6 +79,10 @@ void glInit() {
   glClearDepth(1.f);
   glClearColor(0.0f, 0.0f, .0f, 0.f);
 
+
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
   glEnable(GL_DEPTH_TEST);
   glDepthMask(GL_TRUE);
 }
@@ -171,16 +175,101 @@ void handleInput() {
 void renderScene() {
   camera->posCameraSetupView();
 
+
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  avatar->render(window.GetFrameTime());
 
-  glColor4f(.23, .25, .9, 1);
+  glPushMatrix();
+  //Debugging triangle. This helps me not get lost in the scene :D
+  glColor4f(.23, .25, .9, .1);
   glBegin(GL_TRIANGLES);
   glVertex3f(-.5, 0, 0);
   glVertex3f(.5, 0, 0);
   glVertex3f(0, .5, 0);
   glEnd();
+
+  glColor4f(.5, .6, .7, 1);
+  glBegin(GL_QUADS);
+  //top platform side
+  glVertex3f(-.5, 0, -.5);
+  glVertex3f(.5, 0, -.5);
+  glVertex3f(.5, 0, .5);
+  glVertex3f(-.5, 0, .5);
+  glColor4f(.2, .2, .7, 1);
+  //right side
+  glVertex3f(.5, 0, -.5);
+  glVertex3f(.5, -.1, -.5);
+  glVertex3f(.5, -.1, .5);
+  glVertex3f(.5, 0, .5);
+  glColor4f(.5, .1, .1, 1);
+  //left side
+  glVertex3f(-.5, 0, -.5);
+  glVertex3f(-.5, -.1, -.5);
+  glVertex3f(-.5, -.1, .5);
+  glVertex3f(-.5, 0, .5);
+  glColor4f(.8, .6, .1, 1);
+  //top side
+  glVertex3f(-.5, 0, -.5);
+  glVertex3f(-.5, -.1, -.5);
+  glVertex3f(.5, -.1, -.5);
+  glVertex3f(.5, 0, -.5);
+  glColor4f(.1, .6, .1, 1);
+  //top side
+  glVertex3f(-.5, 0, .5);
+  glVertex3f(-.5, -.1, .5);
+  glVertex3f(.5, -.1, .5);
+  glVertex3f(.5, 0, .5);
+  glColor4f(1.0, 1.0, 1.0, 1);
+  //bottom platform side
+  glVertex3f(-.5, -.1, -.5);
+  glVertex3f(.5, -.1, -.5);
+  glVertex3f(.5, -.1, .5);
+  glVertex3f(-.5, -.1, .5);
+  glEnd();
+
+  glTranslatef(0, 0, 1.1);
+
+  glColor4f(.5, .6, .7, 1);
+  glBegin(GL_QUADS);
+  //top platform side
+  glVertex3f(-.5, 0, -.5);
+  glVertex3f(.5, 0, -.5);
+  glVertex3f(.5, 0, .5);
+  glVertex3f(-.5, 0, .5);
+  glColor4f(.2, .2, .7, 1);
+  //right side
+  glVertex3f(.5, 0, -.5);
+  glVertex3f(.5, -.1, -.5);
+  glVertex3f(.5, -.1, .5);
+  glVertex3f(.5, 0, .5);
+  glColor4f(.5, .1, .1, 1);
+  //left side
+  glVertex3f(-.5, 0, -.5);
+  glVertex3f(-.5, -.1, -.5);
+  glVertex3f(-.5, -.1, .5);
+  glVertex3f(-.5, 0, .5);
+  glColor4f(.8, .6, .1, 1);
+  //top side
+  glVertex3f(-.5, 0, -.5);
+  glVertex3f(-.5, -.1, -.5);
+  glVertex3f(.5, -.1, -.5);
+  glVertex3f(.5, 0, -.5);
+  glColor4f(.1, .6, .1, 1);
+  //top side
+  glVertex3f(-.5, 0, .5);
+  glVertex3f(-.5, -.1, .5);
+  glVertex3f(.5, -.1, .5);
+  glVertex3f(.5, 0, .5);
+  glColor4f(1.0, 1.0, 1.0, 1);
+  //bottom platform side
+  glVertex3f(-.5, -.1, -.5);
+  glVertex3f(.5, -.1, -.5);
+  glVertex3f(.5, -.1, .5);
+  glVertex3f(-.5, -.1, .5);
+  glEnd();
+  glPopMatrix();
+
+  avatar->render(window.GetFrameTime());
 }
 
 int main() {
@@ -191,7 +280,7 @@ int main() {
 
     //Set the avatar position to be in front of the camera.
     avatar->updatePosition(camera->posX() + camera->atX(),
-        camera->posY() + camera->atY(), camera->posZ() + camera->atZ() + .1,
+        camera->posY() + camera->atY(), camera->posZ() + camera->atZ() + .05,
         camera->totalXAngle(), camera->totalYAngle(), camera->sideDirection());
 
     renderScene();

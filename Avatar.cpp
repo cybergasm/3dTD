@@ -28,7 +28,8 @@ using namespace std;
 
 Avatar::Avatar(float x_, float y_, float z_) :
   x(x_), y(y_), z(z_), xAng(0.0f), yAng(0.0f), halfSideLen(.05),
-      numParticles(2000), aniDuration(20), particles(numParticles, aniDuration) {
+      numParticles(2000), aniDuration(20), blurTimer(0), blurBuffer(0), usedBuffers(0),
+      particles(numParticles, aniDuration) {
   sideVector.x = 1.0f;
   sideVector.y = 0.0f;
   sideVector.z = 0.0f;
@@ -100,23 +101,86 @@ aiVector3D Avatar::getParticleColor() {
 
 void Avatar::render(float framerate) {
   GL_CHECK(glUseProgram(shader->programID()));
+
+  //This transformation ensures the orientation is keeping up
+  //with our camera
   glPushMatrix();
   glTranslatef(x, y, z);
   glRotatef(xAng * (180.0f / M_PI), 0, 1, 0);
   glTranslatef(-x, -y, -z);
 
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  //Get the buffers our caller was using
+  GLint currentDraw, currentRead;
+  glGetIntegerv(GL_DRAW_BUFFER, &currentDraw);
+  glGetIntegerv(GL_READ_BUFFER, &currentRead);
 
+  //Grab the current scene into our accumulation buffer
+  glAccum(GL_LOAD, 1);
+
+  //Disable current buffers
+  glDrawBuffer(currentDraw);
+  glReadBuffer(currentRead);
+
+  //enable the current auxilary buffer
+  glDrawBuffer(GL_AUX0 + blurBuffer);
+
+  //Here we make a check to see if it is time to clear this buffer
+  //Basically every multiple of the buffer time passed we clear the buffer
+  if (blurTimer % (8*blurBuffer+1) == 0) {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  }
   //Create a vector holding the position of the avatar
   //and set that to the origin of the particles
   aiVector3D curPosition(x, y, z);
   particles.uniformLocationIs(curPosition);
   particles.render(framerate);
 
-  glPopMatrix();
-  glDisable(GL_BLEND);
+  if (usedBuffers < 4){
+    usedBuffers++;
+  }
+
+  //switch back to no shader program
   GL_CHECK(glUseProgram(0));
+  //undo our transformation
+  glPopMatrix();
+
+  //Go through our previous buffers and add each of them to the accumulation
+  for (unsigned int curBuffer = 0; curBuffer < usedBuffers; curBuffer++) {
+    int bufferToUse = curBuffer;
+    //This makes sure we add the scenes in order of rendering; We want to start
+    //one past the current and loop back to the current
+    if (usedBuffers == 4) {
+      bufferToUse = ((blurBuffer + 4)%4 + curBuffer)%4;
+    }
+    //enable this frame to add to accumulation buffer
+    glReadBuffer (GL_AUX0 + bufferToUse);
+    glAccum(GL_ACCUM, .15);
+    //disable frame
+    glReadBuffer (GL_AUX0 + bufferToUse);
+  }
+
+  //Now renable previous read buffer as we do not have to read from
+  //aux anymore.
+  glReadBuffer(currentRead);
+
+  //Now disable the aux buffer and re-enable the previous buffer
+  //so accumulation buffer can be draw into previous
+  glDrawBuffer(GL_AUX0 + blurBuffer);
+  glDrawBuffer(currentDraw);
+
+  //Dump the accumulation buffer into our
+  glAccum(GL_RETURN, 1);
+
+  //Update the timer. I do a check just to make sure it is constrained a bit and reset
+  //every once in a while
+  if (blurTimer >= 10000) {
+    blurTimer = 0;
+  }
+
+  //Take us forward in time and set the following buffer to be used
+  //for the next scene
+  blurTimer += 1;
+  blurBuffer = (blurBuffer + 1) % 4;
 }
 
 void Avatar::updatePosition(float x_, float y_, float z_, float xAng_,
