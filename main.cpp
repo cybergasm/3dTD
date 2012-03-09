@@ -42,7 +42,6 @@ float farClip = 500.0f;
 
 float aspect = initWinWidth / initWinWidth;
 
-
 /**
  * Maze configuration
  */
@@ -77,7 +76,6 @@ void glInit() {
   glClearDepth(1.f);
   glClearColor(0.0f, 0.0f, .0f, 0.f);
 
-
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -103,9 +101,55 @@ void init() {
 
   camera = new Camera(nearClip, farClip, fov, initWinHeight, initWinWidth);
 
-  maze = new Maze("fddffllffrruuff");
+  mazeString = "ff";
+  maze = new Maze(mazeString);
   window.ShowMouseCursor(false);
 }
+/**
+ * The following functions change how the maze looks based on user input.
+ *
+ * This should probably be its own class
+ */
+void tryAndAddTileUp() {
+  //Can not add an upward tile if the last tile confirmed is down
+  if (mazeString.at(mazeString.length() - 2) != 'd') {
+    mazeString.erase(mazeString.length() - 1);
+    mazeString += "u";
+  }
+}
+
+void tryAndAddForward() {
+  //can always go forward.
+  mazeString.erase(mazeString.length() - 1);
+  mazeString += "f";
+}
+
+void tryAndAddDown() {
+  //Can not add a downward tile if the last tile confirmed is up
+  if (mazeString.at(mazeString.length() - 2) != 'u') {
+    mazeString.erase(mazeString.length() - 1);
+    mazeString += "d";
+  }
+}
+
+void tryAndAddLeft() {
+  //Can only add left if last confirmed is forward or another left
+  if (mazeString.at(mazeString.length() - 2) == 'f' || mazeString.at(
+      mazeString.length() - 2) == 'l') {
+    mazeString.erase(mazeString.length() - 1);
+    mazeString += "l";
+  }
+}
+
+void tryAndAddRight() {
+  //Can only add right if last confirmed is forward
+  if (mazeString.at(mazeString.length() - 2) == 'f'|| mazeString.at(
+      mazeString.length() - 2) == 'r') {
+    mazeString.erase(mazeString.length() - 1);
+    mazeString += "r";
+  }
+}
+
 /**
  * Takes appropriate action when keys are pressed by delegating
  * to appropriate function
@@ -119,6 +163,41 @@ void keyPressed(sf::Key::Code key) {
     camera->moveForward();
   } else if (key == sf::Key::S) {
     camera->moveBackwards();
+  } else if (key == sf::Key::Up) {
+    //if last orientation is forward, we try up
+    if (mazeString.at(mazeString.length() - 1) == 'f') {
+      tryAndAddTileUp();
+      //else if last orientation was down we try forward
+    } else if ((mazeString.at(mazeString.length() - 1) == 'd')) {
+      tryAndAddForward();
+    }
+  } else if (key == sf::Key::Down) {
+    //if last orientation is forward, we try down
+    if (mazeString.at(mazeString.length() - 1) == 'f') {
+      tryAndAddDown();
+      //else if last orientation was up we try forward
+    } else if ((mazeString.at(mazeString.length() - 1) == 'u')) {
+      tryAndAddForward();
+    }
+  } else if (key == sf::Key::Left) {
+    //if last orientation is forward, we try left
+    if (mazeString.at(mazeString.length() - 1) == 'f') {
+      tryAndAddLeft();
+      //else if last orientation was right we try forward
+    } else if ((mazeString.at(mazeString.length() - 1) == 'r')) {
+      tryAndAddForward();
+    }
+  } else if (key == sf::Key::Right) {
+    //if last orientation is forward, we try left
+    if (mazeString.at(mazeString.length() - 1) == 'f') {
+      tryAndAddRight();
+      //else if last orientation was right we try forward
+    } else if ((mazeString.at(mazeString.length() - 1) == 'l')) {
+      tryAndAddForward();
+    }
+  } else if (key == sf::Key::Return) {
+    //confirm selection and add a new forward to choose
+    mazeString += "f";
   }
 }
 
@@ -175,9 +254,7 @@ void handleInput() {
 void renderScene() {
   camera->posCameraSetupView();
 
-
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 
   glPushMatrix();
   //Debugging triangle. This helps me not get lost in the scene :D
@@ -191,98 +268,23 @@ void renderScene() {
   glPopMatrix();
   maze->render();
   avatar->render(window.GetFrameTime());
-
-  /*glColor4f(.5, .6, .7, 1);
-  glBegin(GL_QUADS);
-  //top platform side
-  glVertex3f(-.5, 0, -.5);
-  glVertex3f(.5, 0, -.5);
-  glVertex3f(.5, 0, .5);
-  glVertex3f(-.5, 0, .5);
-  glColor4f(.2, .2, .7, 1);
-  //right side
-  glVertex3f(.5, 0, -.5);
-  glVertex3f(.5, -.1, -.5);
-  glVertex3f(.5, -.1, .5);
-  glVertex3f(.5, 0, .5);
-  glColor4f(.5, .1, .1, 1);
-  //left side
-  glVertex3f(-.5, 0, -.5);
-  glVertex3f(-.5, -.1, -.5);
-  glVertex3f(-.5, -.1, .5);
-  glVertex3f(-.5, 0, .5);
-  glColor4f(.8, .6, .1, 1);
-  //top side
-  glVertex3f(-.5, 0, -.5);
-  glVertex3f(-.5, -.1, -.5);
-  glVertex3f(.5, -.1, -.5);
-  glVertex3f(.5, 0, -.5);
-  glColor4f(.1, .6, .1, 1);
-  //top side
-  glVertex3f(-.5, 0, .5);
-  glVertex3f(-.5, -.1, .5);
-  glVertex3f(.5, -.1, .5);
-  glVertex3f(.5, 0, .5);
-  glColor4f(1.0, 1.0, 1.0, 1);
-  //bottom platform side
-  glVertex3f(-.5, -.1, -.5);
-  glVertex3f(.5, -.1, -.5);
-  glVertex3f(.5, -.1, .5);
-  glVertex3f(-.5, -.1, .5);
-  glEnd();
-
-  glRotatef(-90, 1, 0, 0);
-  glTranslatef(0, 0, 1.1);
-  glColor4f(.5, .6, .7, 1);
-  glBegin(GL_QUADS);
-  //top platform side
-  glVertex3f(-.5, 0, -.5);
-  glVertex3f(.5, 0, -.5);
-  glVertex3f(.5, 0, .5);
-  glVertex3f(-.5, 0, .5);
-  glColor4f(.2, .2, .7, 1);
-  //right side
-  glVertex3f(.5, 0, -.5);
-  glVertex3f(.5, -.1, -.5);
-  glVertex3f(.5, -.1, .5);
-  glVertex3f(.5, 0, .5);
-  glColor4f(.5, .1, .1, 1);
-  //left side
-  glVertex3f(-.5, 0, -.5);
-  glVertex3f(-.5, -.1, -.5);
-  glVertex3f(-.5, -.1, .5);
-  glVertex3f(-.5, 0, .5);
-  glColor4f(.8, .6, .1, 1);
-  //top side
-  glVertex3f(-.5, 0, -.5);
-  glVertex3f(-.5, -.1, -.5);
-  glVertex3f(.5, -.1, -.5);
-  glVertex3f(.5, 0, -.5);
-  glColor4f(.1, .6, .1, 1);
-  //top side
-  glVertex3f(-.5, 0, .5);
-  glVertex3f(-.5, -.1, .5);
-  glVertex3f(.5, -.1, .5);
-  glVertex3f(.5, 0, .5);
-  glColor4f(1.0, 1.0, 1.0, 1);
-  //bottom platform side
-  glVertex3f(-.5, -.1, -.5);
-  glVertex3f(.5, -.1, -.5);
-  glVertex3f(.5, -.1, .5);
-  glVertex3f(-.5, -.1, .5);
-  glEnd();*/
 }
 
 int main() {
   glInit();
   init();
   while (window.IsOpened()) {
+    //I prefer to keep input handling in its own class, but
+    //I was a little rushed to just get stuff done and the input
+    //was not too dynamic in this game.
     handleInput();
     //Set the avatar position to be in front of the camera.
     avatar->updatePosition(camera->posX() + camera->atX(),
         camera->posY() + camera->atY(), camera->posZ() + camera->atZ() + .05,
         camera->totalXAngle(), camera->totalYAngle(), camera->sideDirection());
 
+    //update maze
+    maze->mazeStringIs(mazeString);
     renderScene();
     window.Display();
   }

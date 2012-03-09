@@ -24,6 +24,11 @@ class Maze {
      * Draw the maze specified by string
      */
     void render();
+
+    /**
+     * Sets how the maze looks
+     */
+    void mazeStringIs(string mazeString_);
   private:
     //The string representing the type of maze to draw. This string can have
     //one of four letters:
@@ -42,10 +47,6 @@ class Maze {
     //Shader that makes tiles look pretty
     Shader* tileShader;
 
-    /**
-     * Sets how the maze looks
-     */
-    void mazeStringIs(string mazeString_);
     /**
      * Utility functions to help render tiles; each renders a tile
      * in the specified direction relative to the one before

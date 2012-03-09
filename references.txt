@@ -3,3 +3,18 @@ the comments.
 
 ### assignment 4 (camera controls)
 ### assignment 3 (I riped out the shader class)
+
+
+I had help with specific concepts from:
+
+### Motion blur - lecture; I also read
+  http://http.developer.nvidia.com/GPUGems3/gpugems3_ch27.html
+  
+  but decided to do it with the auxilary buffers since I thought it made localized 
+  blur easier (and I wasn't going to use them anyway!)
+  
+### Particle systems - I read this paper a while back (last quarter), and while
+  I did not consult it during this project, it did teah me how to do psystems
+      http://dl.acm.org/citation.cfm?id=357320
+      
+  
