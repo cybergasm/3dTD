@@ -103,7 +103,7 @@ void init() {
 
   camera = new Camera(nearClip, farClip, fov, initWinHeight, initWinWidth);
 
-  maze = new Maze("ffllffrr");
+  maze = new Maze("fddffllffrruuff");
   window.ShowMouseCursor(false);
 }
 /**
