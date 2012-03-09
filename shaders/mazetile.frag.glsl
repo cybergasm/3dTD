@@ -1,7 +1,10 @@
+//for opacity mapping
+uniform sampler opacityMap;
 
 varying vec3 normal;
 varying vec3 eyePosition;
 varying vec4 color;
+varying vec2 texcoord;
 
 void main() {
   //Won't waste time passing stuff in as it is the same for
@@ -29,5 +32,9 @@ void main() {
   //Ambient
   vec3 ambient = Ka * gl_LightSource[0].ambient.rgb;
   
-  gl_FragColor = vec4(diffuse + specular + ambient, 1);
+  float opac = 1;
+  if (texcoord.x != -1.0) {
+    opac = texture2D(opacityMap, texcoord).r;
+  }
+  gl_FragColor = vec4(diffuse + specular + ambient, opac);
 }

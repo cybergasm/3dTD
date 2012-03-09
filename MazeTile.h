@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "assimp/aiVector3D.h"
+#include "SFML/Graphics/Image.hpp"
 
 #include "Shader.h"
 
@@ -28,8 +29,12 @@ class MazeTile {
     //How long and wide the tile is
     float width, depth;
 
-    //Pointer to the shader
+    //The opacity texture
+    sf::Image opacityTex;
+
+    //vertex information
     vector<aiVector3D> vertices;
+    vector<aiVector3D> texCoords;
     vector<unsigned> indices;
     vector<aiVector3D> normals;
     vector<aiVector3D> colors;

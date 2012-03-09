@@ -27,6 +27,7 @@ MazeTile::MazeTile(float width_, float depth_) :
   indices.reserve(4 * 6);
   normals.reserve(4 * 6);
   colors.reserve(4 * 6);
+  texCoords.reserve(4 * 6);
 
   initVertices();
   initTopFace();
@@ -35,6 +36,17 @@ MazeTile::MazeTile(float width_, float depth_) :
   initRightFace();
   initFrontFace();
   initBackFace();
+
+  opacityTex.LoadFromFile("models/tile_opacity_texture2.jpg");
+  glActiveTexture(GL_TEXTURE0);
+  opacityTex.Bind();
+  glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+      GL_LINEAR_MIPMAP_NEAREST);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glGenerateMipmapEXT(GL_TEXTURE_2D);
 }
 
 MazeTile::~MazeTile() {
@@ -51,6 +63,14 @@ void MazeTile::initVertices() {
   vertices.push_back(aiVector3D(width / 2.0f, -.1, -depth / 2.0f));
   vertices.push_back(aiVector3D(width / 2.0f, -.1, depth / 2.0f));
   vertices.push_back(aiVector3D(-width / 2.0f, -.1, depth / 2.0f));
+
+  //initialize the texture coordinates
+  for (int i = 0; i < 6; i++) {
+    texCoords.push_back(aiVector3D(0, 0, 0));
+    texCoords.push_back(aiVector3D(1, 0, 0));
+    texCoords.push_back(aiVector3D(1, 1, 0));
+    texCoords.push_back(aiVector3D(0, 1, 0));
+  }
 }
 
 void MazeTile::initTopFace() {
@@ -145,6 +165,8 @@ void MazeTile::render(int shaderId) {
   GLint positionIn = glGetAttribLocation(shaderId, "positionIn");
   GLint colorIn = glGetAttribLocation(shaderId, "colorIn");
   GLint normalIn = glGetAttribLocation(shaderId, "normalIn");
+  GLint texCoordIn = glGetAttribLocation(shaderId, "texCoordIn");
+  GLint opac = glGetUniformLocation(shaderId, "opacityMap");
 
   if (positionIn == -1) {
     cerr << "Error retrieving position in for maze tile." << endl;
@@ -155,21 +177,40 @@ void MazeTile::render(int shaderId) {
   }
 
   if (normalIn == -1) {
-    cerr << "Error retrieving normal in for maze tile."<< endl;
+    cerr << "Error retrieving normal in for maze tile." << endl;
   }
+
+  if (opac == -1) {
+    cerr << "Error retrieving opacity in for maze tile." << endl;
+  }
+
+  if (texCoordIn == -1) {
+    cerr << "Error retrieving texCoordIn for maze tile." << endl;
+  }
+
+  glUniform1i(opac, 0);
+  glActiveTexture(GL_TEXTURE0);
+  opacityTex.Bind();
 
   GL_CHECK(glEnableVertexAttribArray(positionIn));
   GL_CHECK(glEnableVertexAttribArray(colorIn));
   GL_CHECK(glEnableVertexAttribArray(normalIn));
+  GL_CHECK(glEnableVertexAttribArray(texCoordIn));
+
   GL_CHECK(glVertexAttribPointer(positionIn, 3, GL_FLOAT, 0, sizeof(aiVector3D),
           &vertices[0]));
   GL_CHECK(glVertexAttribPointer(colorIn, 3, GL_FLOAT, 0, sizeof(aiVector3D),
           &colors[0]));
   GL_CHECK(glVertexAttribPointer(normalIn, 3, GL_FLOAT, 0, sizeof(aiVector3D),
-           &normals[0]));
+          &normals[0]));
+  GL_CHECK(glVertexAttribPointer(texCoordIn, 2, GL_FLOAT, 0, sizeof(aiVector3D),
+          &texCoords[0]));
 
   GL_CHECK(glDrawElements(GL_QUADS, 24, GL_UNSIGNED_INT, &indices[0]));
 
   GL_CHECK(glDisableVertexAttribArray(positionIn));
+  GL_CHECK(glDisableVertexAttribArray(colorIn));
+  GL_CHECK(glDisableVertexAttribArray(normalIn));
+  GL_CHECK(glDisableVertexAttribArray(texCoordIn));
 }
 
