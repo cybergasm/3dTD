@@ -81,6 +81,16 @@ void glInit() {
 
   glEnable(GL_DEPTH_TEST);
   glDepthMask(GL_TRUE);
+
+  //Enable lighting and set some color
+  GLfloat lightDiffuse[] = { 0.5f, 0.5f, 0.5f, 1.0f };
+  GLfloat lightSpecular[] = { 0.3f, 0.3f, 0.3f, 1.0f };
+  GLfloat lightAmbient[] = { 0.1f, 0.1f, 0.1f, 1.0f };
+  glEnable(GL_LIGHTING);
+
+  glLightfv(GL_LIGHT0, GL_DIFFUSE, lightDiffuse);
+  glLightfv(GL_LIGHT0, GL_SPECULAR, lightSpecular);
+  glLightfv(GL_LIGHT0, GL_AMBIENT, lightAmbient);
 }
 
 /**
@@ -143,7 +153,7 @@ void tryAndAddLeft() {
 
 void tryAndAddRight() {
   //Can only add right if last confirmed is forward
-  if (mazeString.at(mazeString.length() - 2) == 'f'|| mazeString.at(
+  if (mazeString.at(mazeString.length() - 2) == 'f' || mazeString.at(
       mazeString.length() - 2) == 'r') {
     mazeString.erase(mazeString.length() - 1);
     mazeString += "r";
@@ -253,6 +263,10 @@ void handleInput() {
 
 void renderScene() {
   camera->posCameraSetupView();
+
+  GLfloat lightPosition[] = { camera->posX(), camera->posY(), camera->posZ(),
+      0.0 };
+  glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

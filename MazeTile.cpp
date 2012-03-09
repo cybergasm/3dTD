@@ -56,7 +56,7 @@ void MazeTile::initVertices() {
 void MazeTile::initTopFace() {
 
   aiVector3D normal(0, 1, 0);
-  aiVector3D color(.4, .2, .6);
+  aiVector3D color(.8, .7, .9);
   for (unsigned int i = 0; i < 4; i++) {
     indices.push_back(i);
     normals.push_back(normal);
@@ -66,7 +66,7 @@ void MazeTile::initTopFace() {
 
 void MazeTile::initBottomFace() {
   aiVector3D normal(0, -1, 0);
-  aiVector3D color(.2, .9, .6);
+  aiVector3D color(.8, .7, .9);
 
   for (unsigned int i = 4; i < 8; i++) {
     indices.push_back(i);
@@ -84,7 +84,7 @@ void MazeTile::initLeftFace() {
   vertices.push_back(vertices[3]);
 
   aiVector3D normal(-1, 0, 0);
-  aiVector3D color(.6, .3, .6);
+  aiVector3D color(.92, .92, .92);
 
   for (unsigned int i = 8; i < 12; i++) {
     indices.push_back(i);
@@ -100,7 +100,7 @@ void MazeTile::initRightFace() {
   vertices.push_back(vertices[2]);
 
   aiVector3D normal(1, 0, 0);
-  aiVector3D color(.4, .7, .9);
+  aiVector3D color(.92, .92, .92);
 
   for (unsigned int i = 12; i < 16; i++) {
     indices.push_back(i);
@@ -116,7 +116,7 @@ void MazeTile::initFrontFace() {
   vertices.push_back(vertices[7]);
 
   aiVector3D normal(1, 0, 0);
-  aiVector3D color(.5, .8, .2);
+  aiVector3D color(.92, .92, .92);
 
   for (unsigned int i = 16; i < 20; i++) {
     indices.push_back(i);
@@ -132,7 +132,7 @@ void MazeTile::initBackFace() {
   vertices.push_back(vertices[4]);
 
   aiVector3D normal(1, 0, 0);
-  aiVector3D color(.5, .8, .2);
+  aiVector3D color(.92, .92, .92);
 
   for (unsigned int i = 20; i < 24; i++) {
     indices.push_back(i);
@@ -144,6 +144,7 @@ void MazeTile::initBackFace() {
 void MazeTile::render(int shaderId) {
   GLint positionIn = glGetAttribLocation(shaderId, "positionIn");
   GLint colorIn = glGetAttribLocation(shaderId, "colorIn");
+  GLint normalIn = glGetAttribLocation(shaderId, "normalIn");
 
   if (positionIn == -1) {
     cerr << "Error retrieving position in for maze tile." << endl;
@@ -153,12 +154,20 @@ void MazeTile::render(int shaderId) {
     cerr << "Error retrieving color in for maze tile." << endl;
   }
 
+  if (normalIn == -1) {
+    cerr << "Error retrieving normal in for maze tile."<< endl;
+  }
+
   GL_CHECK(glEnableVertexAttribArray(positionIn));
   GL_CHECK(glEnableVertexAttribArray(colorIn));
+  GL_CHECK(glEnableVertexAttribArray(normalIn));
   GL_CHECK(glVertexAttribPointer(positionIn, 3, GL_FLOAT, 0, sizeof(aiVector3D),
           &vertices[0]));
   GL_CHECK(glVertexAttribPointer(colorIn, 3, GL_FLOAT, 0, sizeof(aiVector3D),
           &colors[0]));
+  GL_CHECK(glVertexAttribPointer(normalIn, 3, GL_FLOAT, 0, sizeof(aiVector3D),
+           &normals[0]));
+
   GL_CHECK(glDrawElements(GL_QUADS, 24, GL_UNSIGNED_INT, &indices[0]));
 
   GL_CHECK(glDisableVertexAttribArray(positionIn));
