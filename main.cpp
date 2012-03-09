@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string.h>
 
 #include <bullet/btBulletDynamicsCommon.h>
 
@@ -46,6 +47,7 @@ float aspect = initWinWidth / initWinWidth;
  * Maze configuration
  */
 Maze* maze;
+string mazeString;
 
 /**
  * Avatar configuration
@@ -101,7 +103,7 @@ void init() {
 
   camera = new Camera(nearClip, farClip, fov, initWinHeight, initWinWidth);
 
-  maze = new Maze("lrrf");
+  maze = new Maze("ffllffrr");
   window.ShowMouseCursor(false);
 }
 /**

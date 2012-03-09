@@ -37,6 +37,10 @@ MazeTile::MazeTile(float width_, float depth_) :
   initBackFace();
 }
 
+MazeTile::~MazeTile() {
+  // TODO Auto-generated destructor stub
+}
+
 void MazeTile::initVertices() {
   vertices.push_back(aiVector3D(-width / 2.0f, .0, -depth / 2.0f));
   vertices.push_back(aiVector3D(width / 2.0f, .0, -depth / 2.0f));
@@ -159,6 +163,4 @@ void MazeTile::render(int shaderId) {
 
   GL_CHECK(glDisableVertexAttribArray(positionIn));
 }
-MazeTile::~MazeTile() {
-  // TODO Auto-generated destructor stub
-}
+
