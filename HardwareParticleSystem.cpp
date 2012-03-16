@@ -49,6 +49,20 @@ void HardwareParticleSystem::addParticle(aiVector3D vel, aiVector3D accel, aiVec
   lifespans[numParticlesSet++] = lifespan;
 }
 
+void HardwareParticleSystem::addParticle(aiVector3D pos_, aiVector3D vel, aiVector3D accel, aiVector3D color_, uint lifespan) {
+  if (numParticlesSet == numParticleTotal) {
+    cerr<<__FILE__<<":Trying to add "<<numParticlesSet<<" particles which is more than "<<numParticleTotal<<"."<<endl;
+    return;
+  }
+
+  pos.push_back(pos_);
+  vels[numParticlesSet] = vel;
+  accels[numParticlesSet] = accel;
+  color[numParticlesSet] = color_;
+  indices.push_back(numParticlesSet);
+  lifespans[numParticlesSet++] = lifespan;
+}
+
 void HardwareParticleSystem::uniformLocationIs(aiVector3D pos_) {
   pos.assign(numParticlesSet, pos_);
 }
@@ -57,16 +71,28 @@ void HardwareParticleSystem::shaderIs(Shader* shader_) {
   shader = shader_;
 }
 
-void HardwareParticleSystem::render(float framerate) {
+
+void HardwareParticleSystem::renderWithFramerate(float framerate) {
+  aniTime += 10*framerate;
+  render (aniTime);
+}
+
+void HardwareParticleSystem::renderAtTime(float time) {
+  render(time);
+}
+
+void HardwareParticleSystem::render(float time) {
   if (shader == NULL) {
     cerr << "No shader set. Not rendering particle system."<<endl;
     return;
   }
-  aniTime += 10 * framerate;
+  GLint oldId;
+  glGetIntegerv(GL_CURRENT_PROGRAM,&oldId);
+  GL_CHECK(glUseProgram(shader->programID()));
 
   //Need to keep track of time passed
   GLint cTimePtr = glGetUniformLocation(shader->programID(), "currentTime");
-  GL_CHECK(glUniform1f(cTimePtr, aniTime));
+  GL_CHECK(glUniform1f(cTimePtr, time));
 
   //How long one lifecycle of all particles is
   GLint durationIn = glGetUniformLocation(shader->programID(), "duration");
@@ -135,6 +161,8 @@ void HardwareParticleSystem::render(float framerate) {
   GL_CHECK(glDisableVertexAttribArray(positionIn));
   GL_CHECK(glDisableVertexAttribArray(life));
   GL_CHECK(glDisableVertexAttribArray(colorId));
+
+  GL_CHECK(glUseProgram(oldId));
 }
 
 aiVector3D HardwareParticleSystem::particleVel(int particleNum) {

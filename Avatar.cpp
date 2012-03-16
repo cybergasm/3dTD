@@ -107,8 +107,6 @@ aiVector3D Avatar::getParticleColor() {
 }
 
 void Avatar::render(float framerate) {
-  GL_CHECK(glUseProgram(shader->programID()));
-
   //This transformation ensures the orientation is keeping up
   //with our camera
   glPushMatrix();
@@ -140,7 +138,7 @@ void Avatar::render(float framerate) {
   }
 
   //gl
-  particles.render(framerate);
+  particles.renderWithFramerate(framerate);
 
   if (usedBuffers < 4){
     usedBuffers++;

@@ -12,20 +12,20 @@
 
 #include "MazeTile.h"
 #include "TileData.h"
-
+#include "TurretFactory.h"
 #include "Shader.h"
 
 using namespace std;
 
 class Maze {
   public:
-    Maze(string mazeString_);
+    Maze(string mazeString_, Shader* psystemShader );
     virtual ~Maze();
 
     /**
      * Draw the maze specified by string
      */
-    void render();
+    void render(float framerate);
 
     /**
      * Sets how the maze looks
@@ -52,6 +52,13 @@ class Maze {
 
     //The per-tile data
     vector<TileData> tileData;
+
+    //We take a pointer to a particle system shader to
+    //cut down on redundant shader
+    Shader* particleSystemShader;
+
+    //The turret factor
+    TurretFactory turretFactory;
 
     //The maze tile we will be rendering in various positions
     MazeTile tile;
@@ -81,10 +88,18 @@ class Maze {
     float numTilesUp;
     float numTilesDown;
 
+    //Global count of tiles for parsing
+    int numTiles;
+
     /**
      * Keeps track of which tile the user is currently selecting
      */
     unsigned int selectedTile;
+
+    /**
+     * Parses the maze string adding new tile data if needed
+     */
+    void parseMazeString();
 };
 
 #endif /* MAZE_H_ */

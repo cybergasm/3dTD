@@ -26,6 +26,11 @@ class HardwareParticleSystem {
     void addParticle(aiVector3D vel, aiVector3D accel, aiVector3D color, uint lifespan_);
 
     /**
+     * Adds a particle to the system with a specified starting position
+     */
+    void addParticle(aiVector3D pos, aiVector3D vel, aiVector3D accel, aiVector3D color, uint lifespan_);
+
+    /**
      * Positioning the particles
      */
     //sets same origin for all particles
@@ -46,7 +51,12 @@ class HardwareParticleSystem {
     // current animation time
     // how long the animation should last before all particles loop back at
     //   least once
-    void render(float framerate);
+    void renderWithFramerate(float framerate);
+
+    /**
+     * Same as above but allows the caller to specify the current time
+     */
+    void renderAtTime(float time);
 
     //sets which shader to use (needs to be called before
     //anything can be rendered)
@@ -97,6 +107,9 @@ class HardwareParticleSystem {
     uint* lifespans;
     //indices to draw
     std::vector<unsigned> indices;
+
+    //renders particles at specified time
+    void render(float time);
 };
 
 #endif /* HARDWAREPARTICLE_H_ */

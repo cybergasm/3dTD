@@ -12,20 +12,32 @@
 #ifndef TILEDATA_H_
 #define TILEDATA_H_
 
-#include "FireWheel.h"
+#include <set>
+
+#include "TurretFactory.h"
+
+
+using namespace std;
 
 class TileData {
   public:
     TileData();
     virtual ~TileData();
 
+    /**
+     * Insert turret type
+     */
+    void addTurret(TurretFactory::TurretType type);
   private:
 
     /**
      * Each tile can have some combination of the possible
-     * turrets
+     * turrets, stored as a set of types as we allow one
+     * turret per square
      */
-    FireWheel* fireWheel;
+    set<TurretFactory::TurretType> turrets;
+
+
 };
 
 #endif /* TILEDATA_H_ */

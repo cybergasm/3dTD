@@ -18,10 +18,12 @@
   }\
 }
 
-Maze::Maze(string mazeString_) :
+Maze::Maze(string mazeString_, Shader* psystemShader) :
   mazeString(mazeString_), tileWidth(.5), tileDepth(.5), tileSpacing(.05),
+      particleSystemShader(psystemShader), turretFactory(particleSystemShader),
       tile(tileWidth, tileDepth), numTilesForward(0), numTilesLeft(0),
-      numTilesRight(0), numTilesUp(0), numTilesDown(0), selectedTile(0) {
+      numTilesRight(0), numTilesUp(0), numTilesDown(0), numTiles(0),
+      selectedTile(0) {
   tileShader = new Shader("shaders/mazetile");
 
   if (!tileShader->loaded()) {
@@ -36,7 +38,7 @@ Maze::~Maze() {
 }
 
 void Maze::selectedInc() {
-  if (selectedTile == mazeString.length()-1) return;
+  if (selectedTile == mazeString.length() - 1) return;
   selectedTile++;
 }
 
@@ -44,7 +46,19 @@ void Maze::selectedDec() {
   if (selectedTile == 0) return;
   selectedTile--;
 }
-void Maze::render() {
+
+void Maze::mazeStringIs(string mazeString_) {
+  mazeString = mazeString_;
+}
+
+void Maze::parseMazeString() {
+  for (unsigned int i = numTiles; i < mazeString.length(); i++) {
+    tileData.push_back(TileData());
+  }
+  numTiles = mazeString.length();
+}
+
+void Maze::render(float framerate) {
   GL_CHECK(glUseProgram(tileShader->programID()));
 
   numTilesLeft = numTilesRight = numTilesDown = numTilesUp = numTilesForward
@@ -55,6 +69,10 @@ void Maze::render() {
   tile.render(tileShader->programID(), false);
 
   for (unsigned int i = 0; i < mazeString.length(); i++) {
+    if (i == 1) {
+      turretFactory.getTurret(TurretFactory::FIRE_WHEEL)->render();
+      turretFactory.updateTime(5.0f*framerate);
+    }
     addTile(mazeString[i], i == selectedTile);
   }
 
@@ -181,7 +199,4 @@ void Maze::renderTileDown(bool selected) {
   glTranslatef(displacementLR * tileWidth + displacementLR * tileSpacing,
       displacementUD * tileDepth + displacementUD * tileSpacing,
       displacementForward * tileDepth + displacementForward * tileSpacing + .1);
-}
-void Maze::mazeStringIs(string mazeString_) {
-  mazeString = mazeString_;
 }

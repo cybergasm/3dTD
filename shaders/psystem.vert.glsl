@@ -50,5 +50,5 @@ void main() {
   
   //Modulate the color depending on how far we are from the center and make ourselves get more 
   //translucent as we die.
-  varyingColor = vec4(ratio*color.r, ratio*color.b, ratio*color.g, ratio);
+  varyingColor = vec4(ratio*color.r, ratio*color.g, ratio*color.b, 1);
 }

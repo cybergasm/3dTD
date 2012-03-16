@@ -112,7 +112,7 @@ void init() {
   camera = new Camera(nearClip, farClip, fov, initWinHeight, initWinWidth);
 
   mazeString = "ff";
-  maze = new Maze(mazeString);
+  maze = new Maze(mazeString, particleSystemShader);
   window.ShowMouseCursor(false);
 }
 /**
@@ -287,7 +287,7 @@ void renderScene() {
   glEnd();
 
   glPopMatrix();
-  maze->render();
+  maze->render(window.GetFrameTime());
   avatar->render(window.GetFrameTime());
 }
 

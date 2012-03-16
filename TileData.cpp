@@ -15,3 +15,7 @@ TileData::TileData() {
 TileData::~TileData() {
   // TODO Auto-generated destructor stub
 }
+
+void TileData::addTurret(TurretFactory::TurretType type) {
+  turrets.insert(type);
+}
