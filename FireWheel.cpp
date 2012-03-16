@@ -38,8 +38,8 @@ void FireWheel::initParticles() {
       vel.x = vel.z = 0.0f;
       vel.y = (rand() % 10 + 1) / 1000.0f;
       lifespan = (rand() % duration + duration * .8f);
-      pos.x = spokeVector.x/5 * (particle) + ((rand()%10)/1000.0f);
-      pos.z = spokeVector.z/5 * (particle) + ((rand()%10)/1000.0f);
+      pos.x = spokeVector.x/5 * (particle) + ((rand()%30)/1000.0f);
+      pos.z = spokeVector.z/5 * (particle) + ((rand()%30)/1000.0f);
       color = getParticleColor();
       particles.addParticle(pos, vel, aiVector3D(0,0,0), color, lifespan);
     }

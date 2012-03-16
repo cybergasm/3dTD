@@ -19,3 +19,7 @@ TileData::~TileData() {
 void TileData::addTurret(TurretFactory::TurretType type) {
   turrets.insert(type);
 }
+
+set<TurretFactory::TurretType> TileData::getTurrets() {
+  return turrets;
+}

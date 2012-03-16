@@ -37,6 +37,11 @@ class Maze {
      */
     void selectedInc();
     void selectedDec();
+
+    /**
+     * Adds turret of specified type to tile
+     */
+    void addTurret(TurretFactory::TurretType type);
   private:
     //The string representing the type of maze to draw. This string can have
     //one of four letters:
@@ -70,12 +75,12 @@ class Maze {
      * Utility functions to help render tiles; each renders a tile
      * in the specified direction relative to the one before
      */
-    void addTile(char tile, bool selected);
-    void renderTileForward(bool selected);
-    void renderTileLeft(bool selected);
-    void renderTileRight(bool selected);
-    void renderTileUp(bool selected);
-    void renderTileDown(bool selected);
+    void addTile(char tile, bool selected, unsigned int index);
+    void renderTileForward(bool selected, unsigned int index);
+    void renderTileLeft(bool selected, unsigned int index);
+    void renderTileRight(bool selected, unsigned int index);
+    void renderTileUp(bool selected, unsigned int index);
+    void renderTileDown(bool selected, unsigned int index);
 
     /**
      * Helps keep count of tiles already rendered to position new tiles
@@ -100,6 +105,11 @@ class Maze {
      * Parses the maze string adding new tile data if needed
      */
     void parseMazeString();
+
+    /**
+     * Renders turrets for given tile
+     */
+    void renderTurrets(unsigned int turret);
 };
 
 #endif /* MAZE_H_ */

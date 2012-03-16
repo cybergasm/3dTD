@@ -8,6 +8,8 @@
 #include "Camera.h"
 #include "Shader.h"
 #include "Maze.h"
+#include "TurretFactory.h"
+
 
 using namespace std;
 
@@ -180,6 +182,8 @@ void keyPressed(sf::Key::Code key) {
   } else if (key == sf::Key::Q) {
     //Move selected tile down
     maze->selectedDec();
+  } else if (key == sf::Key::Num1) {
+    maze->addTurret(TurretFactory::FIRE_WHEEL);
   } else if (key == sf::Key::Up) {
     //if last orientation is forward, we try up
     if (mazeString.at(mazeString.length() - 1) == 'f') {

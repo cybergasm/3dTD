@@ -28,6 +28,11 @@ class TileData {
      * Insert turret type
      */
     void addTurret(TurretFactory::TurretType type);
+
+    /**
+     * Gets turrets
+     */
+    set<TurretFactory::TurretType> getTurrets();
   private:
 
     /**

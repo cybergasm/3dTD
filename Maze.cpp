@@ -31,6 +31,8 @@ Maze::Maze(string mazeString_, Shader* psystemShader) :
     cerr << tileShader->errors() << endl;
     exit(-1);
   }
+
+  parseMazeString();
 }
 
 Maze::~Maze() {
@@ -49,6 +51,7 @@ void Maze::selectedDec() {
 
 void Maze::mazeStringIs(string mazeString_) {
   mazeString = mazeString_;
+  parseMazeString();
 }
 
 void Maze::parseMazeString() {
@@ -56,6 +59,13 @@ void Maze::parseMazeString() {
     tileData.push_back(TileData());
   }
   numTiles = mazeString.length();
+}
+
+void Maze::addTurret(TurretFactory::TurretType type) {
+  TileData data = tileData.at(selectedTile);
+  data.addTurret(type);
+  tileData.erase(tileData.begin()+selectedTile);
+  tileData.insert(tileData.begin()+selectedTile, data);
 }
 
 void Maze::render(float framerate) {
@@ -69,62 +79,63 @@ void Maze::render(float framerate) {
   tile.render(tileShader->programID(), false);
 
   for (unsigned int i = 0; i < mazeString.length(); i++) {
-    if (i == 1) {
-      turretFactory.getTurret(TurretFactory::FIRE_WHEEL)->render();
-      turretFactory.updateTime(5.0f*framerate);
-    }
-    addTile(mazeString[i], i == selectedTile);
+    addTile(mazeString[i], i == selectedTile, i);
   }
+
+  turretFactory.updateTime(5.0f * framerate);
 
   glPopMatrix();
   GL_CHECK(glUseProgram(0));
 }
 
-void Maze::addTile(char tile, bool selected) {
+void Maze::addTile(char tile, bool selected, unsigned int index) {
   switch (tile) {
     case 'f':
-      renderTileForward(selected);
+      renderTileForward(selected, index);
       break;
     case 'l':
-      renderTileLeft(selected);
+      renderTileLeft(selected, index);
       break;
     case 'r':
-      renderTileRight(selected);
+      renderTileRight(selected, index);
       break;
     case 'u':
-      renderTileUp(selected);
+      renderTileUp(selected, index);
       break;
     case 'd':
-      renderTileDown(selected);
+      renderTileDown(selected, index);
       break;
   }
 }
 
-void Maze::renderTileForward(bool selected) {
+void Maze::renderTileForward(bool selected, unsigned int index) {
   numTilesForward++;
   //Add spacing, move forward, and render
   glTranslatef(0, 0, tileSpacing);
   glTranslatef(0, 0, tileDepth);
   tile.render(tileShader->programID(), selected);
+  renderTurrets(index);
 }
 
-void Maze::renderTileLeft(bool selected) {
+void Maze::renderTileLeft(bool selected, unsigned int index) {
   numTilesLeft++;
   //Add spacing, move left, and render
   glTranslatef(-tileSpacing, 0, 0);
   glTranslatef(-tileWidth, 0, 0);
   tile.render(tileShader->programID(), selected);
+  renderTurrets(index);
 }
 
-void Maze::renderTileRight(bool selected) {
+void Maze::renderTileRight(bool selected, unsigned int index) {
   numTilesRight++;
   //Add spacing move right and render
   glTranslatef(tileSpacing, 0, 0);
   glTranslatef(tileWidth, 0, 0);
   tile.render(tileShader->programID(), selected);
+  renderTurrets(index);
 }
 
-void Maze::renderTileUp(bool selected) {
+void Maze::renderTileUp(bool selected, unsigned int index) {
   numTilesUp++;
   //Reset original matrix and put it back
   //on the stack
@@ -143,6 +154,7 @@ void Maze::renderTileUp(bool selected) {
 
   glRotatef(-90, 1, 0, 0);
   tile.render(tileShader->programID(), selected);
+  renderTurrets(index);
   //reset original matrix
   glPopMatrix();
   glPushMatrix();
@@ -161,7 +173,7 @@ void Maze::renderTileUp(bool selected) {
       displacementForward * tileDepth + displacementForward * tileSpacing + .1);
 }
 
-void Maze::renderTileDown(bool selected) {
+void Maze::renderTileDown(bool selected, unsigned int index) {
   numTilesDown++;
   //Reset original matrix and put it back
   //on the stack
@@ -183,6 +195,7 @@ void Maze::renderTileDown(bool selected) {
 
   glRotatef(90, 1, 0, 0);
   tile.render(tileShader->programID(), selected);
+  renderTurrets(index);
   //reset original matrix
   glPopMatrix();
   glPushMatrix();
@@ -199,4 +212,14 @@ void Maze::renderTileDown(bool selected) {
   glTranslatef(displacementLR * tileWidth + displacementLR * tileSpacing,
       displacementUD * tileDepth + displacementUD * tileSpacing,
       displacementForward * tileDepth + displacementForward * tileSpacing + .1);
+}
+
+void Maze::renderTurrets(unsigned int index) {
+  set<TurretFactory::TurretType> tileTurrets = tileData.at(index).getTurrets();
+
+  for (set<TurretFactory::TurretType>::iterator iter = tileTurrets.begin(); iter
+      != tileTurrets.end(); ++iter) {
+    turretFactory.getTurret(*iter)->render();
+  }
+
 }
