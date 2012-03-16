@@ -29,6 +29,12 @@ class Maze {
      * Sets how the maze looks
      */
     void mazeStringIs(string mazeString_);
+
+    /**
+     * Change which tile is selected
+     */
+    void selectedInc();
+    void selectedDec();
   private:
     //The string representing the type of maze to draw. This string can have
     //one of four letters:
@@ -51,12 +57,12 @@ class Maze {
      * Utility functions to help render tiles; each renders a tile
      * in the specified direction relative to the one before
      */
-    void addTile(char tile);
-    void renderTileForward();
-    void renderTileLeft();
-    void renderTileRight();
-    void renderTileUp();
-    void renderTileDown();
+    void addTile(char tile, bool selected);
+    void renderTileForward(bool selected);
+    void renderTileLeft(bool selected);
+    void renderTileRight(bool selected);
+    void renderTileUp(bool selected);
+    void renderTileDown(bool selected);
 
     /**
      * Helps keep count of tiles already rendered to position new tiles
@@ -68,6 +74,11 @@ class Maze {
     float numTilesRight;
     float numTilesUp;
     float numTilesDown;
+
+    /**
+     * Keeps track of which tile the user is currently selecting
+     */
+    unsigned int selectedTile;
 };
 
 #endif /* MAZE_H_ */

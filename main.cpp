@@ -173,6 +173,12 @@ void keyPressed(sf::Key::Code key) {
     camera->moveForward();
   } else if (key == sf::Key::S) {
     camera->moveBackwards();
+  } else if (key == sf::Key::E) {
+    //Move selected tile up
+    maze->selectedInc();
+  } else if (key == sf::Key::Q) {
+    //Move selected tile down
+    maze->selectedDec();
   } else if (key == sf::Key::Up) {
     //if last orientation is forward, we try up
     if (mazeString.at(mazeString.length() - 1) == 'f') {

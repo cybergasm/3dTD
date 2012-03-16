@@ -23,7 +23,7 @@ class MazeTile {
     virtual ~MazeTile();
 
     //Draw the tile
-    void render(int shaderId);
+    void render(int shaderId, bool selected);
   private:
 
     //How long and wide the tile is
@@ -38,6 +38,11 @@ class MazeTile {
     vector<unsigned> indices;
     vector<aiVector3D> normals;
     vector<aiVector3D> colors;
+
+    //Regular tile color
+    aiVector3D color;
+
+    aiVector3D selectedColor;
 
     /**
      * Intiiallizes the points for the cube

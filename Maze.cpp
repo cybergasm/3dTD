@@ -21,7 +21,7 @@
 Maze::Maze(string mazeString_) :
   mazeString(mazeString_), tileWidth(.5), tileDepth(.5), tileSpacing(.05),
       tile(tileWidth, tileDepth), numTilesForward(0), numTilesLeft(0),
-      numTilesRight(0), numTilesUp(0), numTilesDown(0) {
+      numTilesRight(0), numTilesUp(0), numTilesDown(0), selectedTile(0) {
   tileShader = new Shader("shaders/mazetile");
 
   if (!tileShader->loaded()) {
@@ -35,6 +35,15 @@ Maze::~Maze() {
   delete tileShader;
 }
 
+void Maze::selectedInc() {
+  if (selectedTile == mazeString.length()-1) return;
+  selectedTile++;
+}
+
+void Maze::selectedDec() {
+  if (selectedTile == 0) return;
+  selectedTile--;
+}
 void Maze::render() {
   GL_CHECK(glUseProgram(tileShader->programID()));
 
@@ -43,82 +52,61 @@ void Maze::render() {
 
   glPushMatrix();
   //render first tile
-  tile.render(tileShader->programID());
+  tile.render(tileShader->programID(), false);
 
   for (unsigned int i = 0; i < mazeString.length(); i++) {
-    addTile(mazeString[i]);
+    addTile(mazeString[i], i == selectedTile);
   }
-  /**glPushMatrix();
-   glPushMatrix();
-   tile.render(tileShader->programID());
-   glTranslatef(0, 0, tileDepth);
-   tile.render(tileShader->programID());
-   glTranslatef(tileWidth, 0, 0);
-   tile.render(tileShader->programID());
-   glTranslatef(0, 0, tileDepth);
-   tile.render(tileShader->programID());
-   glPopMatrix();
-
-   glPushMatrix();
-   glTranslatef(tileWidth, tileWidth / 2, tileDepth * 2.5);
-   glRotatef(90, 1, 0, 0);
-   tile.render(tileShader->programID());
-   glPopMatrix();
-
-   glTranslatef(tileWidth, tileWidth, tileDepth * 3);
-   tile.render(tileShader->programID());
-
-   glPopMatrix();*/
 
   glPopMatrix();
   GL_CHECK(glUseProgram(0));
 }
 
-void Maze::addTile(char tile) {
+void Maze::addTile(char tile, bool selected) {
   switch (tile) {
     case 'f':
-      renderTileForward();
+      renderTileForward(selected);
       break;
     case 'l':
-      renderTileLeft();
+      renderTileLeft(selected);
       break;
     case 'r':
-      renderTileRight();
+      renderTileRight(selected);
       break;
     case 'u':
-      renderTileUp();
+      renderTileUp(selected);
       break;
     case 'd':
-      renderTileDown();
+      renderTileDown(selected);
       break;
   }
 }
 
-void Maze::renderTileForward() {
+void Maze::renderTileForward(bool selected) {
   numTilesForward++;
   //Add spacing, move forward, and render
   glTranslatef(0, 0, tileSpacing);
   glTranslatef(0, 0, tileDepth);
-  tile.render(tileShader->programID());
+  tile.render(tileShader->programID(), selected);
 }
 
-void Maze::renderTileLeft() {
+void Maze::renderTileLeft(bool selected) {
   numTilesLeft++;
   //Add spacing, move left, and render
   glTranslatef(-tileSpacing, 0, 0);
   glTranslatef(-tileWidth, 0, 0);
-  tile.render(tileShader->programID());
+  tile.render(tileShader->programID(), selected);
 }
 
-void Maze::renderTileRight() {
+void Maze::renderTileRight(bool selected) {
   numTilesRight++;
   //Add spacing move right and render
   glTranslatef(tileSpacing, 0, 0);
   glTranslatef(tileWidth, 0, 0);
-  tile.render(tileShader->programID());
+  tile.render(tileShader->programID(), selected);
 }
 
-void Maze::renderTileUp() {
+void Maze::renderTileUp(bool selected) {
   numTilesUp++;
   //Reset original matrix and put it back
   //on the stack
@@ -136,7 +124,7 @@ void Maze::renderTileUp() {
       displacementForward * tileDepth + displacementForward * tileSpacing);
 
   glRotatef(-90, 1, 0, 0);
-  tile.render(tileShader->programID());
+  tile.render(tileShader->programID(), selected);
   //reset original matrix
   glPopMatrix();
   glPushMatrix();
@@ -155,7 +143,7 @@ void Maze::renderTileUp() {
       displacementForward * tileDepth + displacementForward * tileSpacing + .1);
 }
 
-void Maze::renderTileDown() {
+void Maze::renderTileDown(bool selected) {
   numTilesDown++;
   //Reset original matrix and put it back
   //on the stack
@@ -176,7 +164,7 @@ void Maze::renderTileDown() {
       displacementForward * tileDepth + displacementForward * tileSpacing);
 
   glRotatef(90, 1, 0, 0);
-  tile.render(tileShader->programID());
+  tile.render(tileShader->programID(), selected);
   //reset original matrix
   glPopMatrix();
   glPushMatrix();

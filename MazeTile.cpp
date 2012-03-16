@@ -22,12 +22,14 @@ using namespace std;
 }
 
 MazeTile::MazeTile(float width_, float depth_) :
-  width(width_), depth(depth_) {
+  width(width_), depth(depth_), color(1, 1, 1), selectedColor(1.0, 1.0, 0.0) {
   vertices.reserve(8);
   indices.reserve(4 * 6);
   normals.reserve(4 * 6);
   colors.reserve(4 * 6);
   texCoords.reserve(4 * 6);
+
+  colors.assign(24, color);
 
   initVertices();
   initTopFace();
@@ -65,33 +67,36 @@ void MazeTile::initVertices() {
   vertices.push_back(aiVector3D(-width / 2.0f, -.1, depth / 2.0f));
 
   //initialize the texture coordinates
-  for (int i = 0; i < 6; i++) {
+  for (int i = 0; i < 2; i++) {
     texCoords.push_back(aiVector3D(0, 0, 0));
     texCoords.push_back(aiVector3D(1, 0, 0));
     texCoords.push_back(aiVector3D(1, 1, 0));
     texCoords.push_back(aiVector3D(0, 1, 0));
   }
+
+  for (int i = 0; i < 4; i++) {
+      texCoords.push_back(aiVector3D(0, 0, 0));
+      texCoords.push_back(aiVector3D(.1, 0, 0));
+      texCoords.push_back(aiVector3D(.1, .1, 0));
+      texCoords.push_back(aiVector3D(0, .1, 0));
+    }
 }
 
 void MazeTile::initTopFace() {
 
   aiVector3D normal(0, 1, 0);
-  aiVector3D color(.8, .7, .9);
   for (unsigned int i = 0; i < 4; i++) {
     indices.push_back(i);
     normals.push_back(normal);
-    colors.push_back(color);
   }
 }
 
 void MazeTile::initBottomFace() {
   aiVector3D normal(0, -1, 0);
-  aiVector3D color(.8, .7, .9);
 
   for (unsigned int i = 4; i < 8; i++) {
     indices.push_back(i);
     normals.push_back(normal);
-    colors.push_back(color);
   }
 }
 
@@ -104,12 +109,10 @@ void MazeTile::initLeftFace() {
   vertices.push_back(vertices[3]);
 
   aiVector3D normal(-1, 0, 0);
-  aiVector3D color(.92, .92, .92);
 
   for (unsigned int i = 8; i < 12; i++) {
     indices.push_back(i);
     normals.push_back(normal);
-    colors.push_back(color);
   }
 }
 
@@ -120,12 +123,10 @@ void MazeTile::initRightFace() {
   vertices.push_back(vertices[2]);
 
   aiVector3D normal(1, 0, 0);
-  aiVector3D color(.92, .92, .92);
 
   for (unsigned int i = 12; i < 16; i++) {
     indices.push_back(i);
     normals.push_back(normal);
-    colors.push_back(color);
   }
 }
 
@@ -136,12 +137,10 @@ void MazeTile::initFrontFace() {
   vertices.push_back(vertices[7]);
 
   aiVector3D normal(1, 0, 0);
-  aiVector3D color(.92, .92, .92);
 
   for (unsigned int i = 16; i < 20; i++) {
     indices.push_back(i);
     normals.push_back(normal);
-    colors.push_back(color);
   }
 }
 
@@ -152,21 +151,30 @@ void MazeTile::initBackFace() {
   vertices.push_back(vertices[4]);
 
   aiVector3D normal(1, 0, 0);
-  aiVector3D color(.92, .92, .92);
 
   for (unsigned int i = 20; i < 24; i++) {
     indices.push_back(i);
     normals.push_back(normal);
-    colors.push_back(color);
   }
 }
 
-void MazeTile::render(int shaderId) {
+void MazeTile::render(int shaderId, bool selected) {
   GLint positionIn = glGetAttribLocation(shaderId, "positionIn");
   GLint colorIn = glGetAttribLocation(shaderId, "colorIn");
   GLint normalIn = glGetAttribLocation(shaderId, "normalIn");
   GLint texCoordIn = glGetAttribLocation(shaderId, "texCoordIn");
   GLint opac = glGetUniformLocation(shaderId, "opacityMap");
+  GLint diffuse = glGetUniformLocation(shaderId, "Kd");
+
+  if (selected) {
+    glUniform3f(diffuse, selectedColor.x, selectedColor.y, selectedColor.z);
+  } else {
+    glUniform3f(diffuse, color.x, color.y, color.z);
+  }
+
+  if (diffuse == -1) {
+    cerr << "Error retrieving diffuse in for maze tile." << endl;
+  }
 
   if (positionIn == -1) {
     cerr << "Error retrieving position in for maze tile." << endl;

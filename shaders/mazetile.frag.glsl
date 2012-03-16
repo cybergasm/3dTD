@@ -6,12 +6,13 @@ varying vec3 eyePosition;
 varying vec4 color;
 varying vec2 texcoord;
 
+//Won't waste time passing stuff in as it is the same for
+//most tiles  
+uniform vec3 Kd = vec3(1.0, 1.0, 1.0);
+uniform vec3 Ks = vec3(0.0, 0.0, 0.0);
+uniform vec3 Ka = vec3(1.0, 1.0, 1.0);
+
 void main() {
-  //Won't waste time passing stuff in as it is the same for
-  //all tiles  
-  vec3 Kd = vec3(.8, .2, 0.0);
-  vec3 Ks = vec3(1.0, 0.1, .1);
-  vec3 Ka = vec3(.7, 0.0, .7);
   float alpha = 3;
   //Basis of Phong as in assignment 3/2
   vec3 N = normalize(normal);
@@ -26,7 +27,7 @@ void main() {
   //Specular
   vec3 R = reflect(-L, N);
   float Rs = pow(max(0.0, dot(V, R)), alpha);
-  vec3 Ts = color.brg;
+  vec3 Ts = color.rgb;
   vec3 specular = Rs * Ks * Ts * gl_LightSource[0].specular.rgb;
 
   //Ambient
