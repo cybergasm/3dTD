@@ -23,7 +23,7 @@ class HardwareParticleSystem {
     /**
      * Adds a particle to the system
      */
-    void addParticle(aiVector3D vel, aiVector3D color, uint lifespan_);
+    void addParticle(aiVector3D vel, aiVector3D accel, aiVector3D color, uint lifespan_);
 
     /**
      * Positioning the particles
@@ -89,6 +89,8 @@ class HardwareParticleSystem {
     std::vector<aiVector3D> pos;
     //velocity
     aiVector3D* vels;
+    //acceleration
+    aiVector3D* accels;
     //color
     aiVector3D* color;
     //how long it lives

@@ -15,6 +15,9 @@ uniform float duration;
 //velocity at which the particle is traveling
 attribute vec3 velocityIn;
 
+//acceleration of particle
+attribute vec3 accelerationIn;
+
 //where the particle starts
 attribute vec3 positionIn;
 
@@ -31,9 +34,13 @@ void main() {
   //downcast so we can mod mod mod
   uint time = currentTime;
   uint span = lifespan;
+  
+  //Get the real velocity
+  vec3 vel = velocityIn + (time%span)*accelerationIn;
+  
   //How far have we moved? The mod ensures we 'die' and start back where
   //we started
-  vec4 moved = ((time%span))*vec4(velocityIn, 0);
+  vec4 moved = ((time%span))*vec4(vel, 0);
   vec4 maxMoved = duration*vec4(velocityIn, 0);
   float ratio = 1 - length(moved) / length(maxMoved);
   

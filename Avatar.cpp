@@ -63,11 +63,14 @@ void Avatar::initializeParticles() {
     if (flip > .5) {
       vel.z *= 1;
     }
+    vel.Normalize();
+    vel /= 100.0f;
+
     cout << vel.x << " " << vel.y << " " << vel.z << " " << lifespan << endl;
-    lifespan = (rand() % aniDuration + aniDuration * .8f);
+    lifespan = (rand() % aniDuration + aniDuration * .3f);
     color = getParticleColor();
     cout << color.x << " " << color.y << " " << color.z << endl;
-    particles.addParticle(vel, color, lifespan);
+    particles.addParticle(vel, aiVector3D(-vel.x/lifespan, -vel.y/lifespan, 0.0), color, lifespan);
   }
 }
 
@@ -126,7 +129,7 @@ void Avatar::render(float framerate) {
 
   //Here we make a check to see if it is time to clear this buffer
   //Basically every multiple of the buffer time passed we clear the buffer
-  if (blurTimer % (16*blurBuffer+1) == 0) {
+  if (blurTimer % (4*blurBuffer+1) == 0) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   }
   //Create a vector holding the position of the avatar

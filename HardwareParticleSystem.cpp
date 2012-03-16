@@ -25,22 +25,25 @@ HardwareParticleSystem::HardwareParticleSystem(int numParticles_, float aniDurat
   pos.reserve(numParticleTotal);
   indices.reserve(numParticles_);
   vels = new aiVector3D[numParticleTotal];
+  accels = new aiVector3D[numParticleTotal];
   color = new aiVector3D[numParticleTotal];
   lifespans = new uint[numParticleTotal];
 }
 
 HardwareParticleSystem::~HardwareParticleSystem() {
   delete [] vels;
+  delete [] accels;
   delete [] color;
   delete [] lifespans;
 }
 
-void HardwareParticleSystem::addParticle(aiVector3D vel, aiVector3D color_, uint lifespan) {
+void HardwareParticleSystem::addParticle(aiVector3D vel, aiVector3D accel, aiVector3D color_, uint lifespan) {
   if (numParticlesSet == numParticleTotal) {
     cerr<<__FILE__<<":Trying to add "<<numParticlesSet<<" particles which is more than "<<numParticleTotal<<"."<<endl;
     return;
   }
   vels[numParticlesSet] = vel;
+  accels[numParticlesSet] = accel;
   color[numParticlesSet] = color_;
   indices.push_back(numParticlesSet);
   lifespans[numParticlesSet++] = lifespan;
@@ -72,6 +75,7 @@ void HardwareParticleSystem::render(float framerate) {
   //How quickly they move, where they start, how long they live, and what they
   //look like
   GLint velocity = glGetAttribLocation(shader->programID(), "velocityIn");
+  GLint acceleration = glGetAttribLocation(shader->programID(), "accelerationIn");
   GLint positionIn = glGetAttribLocation(shader->programID(), "positionIn");
   GLint life = glGetAttribLocation(shader->programID(), "lifespan");
   GLint colorId = glGetAttribLocation(shader->programID(), "color");
@@ -91,6 +95,9 @@ void HardwareParticleSystem::render(float framerate) {
     cerr << "Error getting velocity pointer." << endl;
   }
 
+  if (acceleration == -1) {
+    cerr << "Error getting acceleration pointer." << endl;
+  }
   if (positionIn == -1) {
     cerr << "Error getting positionIn pointer." << endl;
   }
@@ -101,6 +108,7 @@ void HardwareParticleSystem::render(float framerate) {
 
   //enable our values.
   GL_CHECK(glEnableVertexAttribArray(velocity));
+  GL_CHECK(glEnableVertexAttribArray(acceleration));
   GL_CHECK(glEnableVertexAttribArray(positionIn));
   GL_CHECK(glEnableVertexAttribArray(life));
   GL_CHECK(glEnableVertexAttribArray(colorId));
@@ -114,6 +122,8 @@ void HardwareParticleSystem::render(float framerate) {
           &pos[0]));
   GL_CHECK(glVertexAttribPointer(velocity, 3, GL_FLOAT, 0, sizeof(aiVector3D),
           vels));
+  GL_CHECK(glVertexAttribPointer(acceleration, 3, GL_FLOAT, 0, sizeof(aiVector3D),
+            accels));
   GL_CHECK(glVertexAttribPointer(colorId, 3, GL_FLOAT, 0, sizeof(aiVector3D),
           color));
   GL_CHECK(glVertexAttribPointer(life, 1, GL_UNSIGNED_INT, 0, 0,
@@ -121,6 +131,7 @@ void HardwareParticleSystem::render(float framerate) {
   GL_CHECK(glDrawElements(GL_POINTS, numParticlesSet, GL_UNSIGNED_INT, &indices[0]));
 
   GL_CHECK(glDisableVertexAttribArray(velocity));
+  GL_CHECK(glDisableVertexAttribArray(acceleration));
   GL_CHECK(glDisableVertexAttribArray(positionIn));
   GL_CHECK(glDisableVertexAttribArray(life));
   GL_CHECK(glDisableVertexAttribArray(colorId));

@@ -118,7 +118,8 @@ void init() {
 /**
  * The following functions change how the maze looks based on user input.
  *
- * This should probably be its own class
+ * This should probably be its own class, and is probably the messiest
+ * part of my code :(
  */
 void tryAndAddTileUp() {
   //Can not add an upward tile if the last tile confirmed is down
