@@ -12,7 +12,7 @@
 using namespace std;
 
 FireWheel::FireWheel(Shader* particleSystemShader) :
-  numParticles(8000), duration(20), numSpokes(8),
+  numParticles(8000), duration(40), numSpokes(8),
       particles(numParticles, duration) {
   initParticles();
 
@@ -37,11 +37,11 @@ void FireWheel::initParticles() {
     for (unsigned int particle = 0; particle < (numParticles/numSpokes); particle++) {
       vel.x = vel.z = 0.0f;
       vel.y = (rand() % 10 + 1) / 1000.0f;
-      lifespan = (rand() % duration + duration * .8f);
+      lifespan = (rand() % duration + duration * .9f);
       pos.x = spokeVector.x/5 * (particle) + ((rand()%30)/1000.0f);
       pos.z = spokeVector.z/5 * (particle) + ((rand()%30)/1000.0f);
       color = getParticleColor();
-      particles.addParticle(pos, vel, aiVector3D(0,0,0), color, lifespan);
+      particles.addParticle(pos, vel, aiVector3D(0,-vel.y/(lifespan),0), color, lifespan);
     }
   }
 }

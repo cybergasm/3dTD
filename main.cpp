@@ -85,8 +85,8 @@ void glInit() {
   glDepthMask(GL_TRUE);
 
   //Enable lighting and set some color
-  GLfloat lightDiffuse[] = { 0.5f, 0.5f, 0.5f, 1.0f };
-  GLfloat lightSpecular[] = { 0.3f, 0.3f, 0.3f, 1.0f };
+  GLfloat lightDiffuse[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+  GLfloat lightSpecular[] = { 0.0f, 0.0f, 0.0f, 1.0f };
   GLfloat lightAmbient[] = { 0.1f, 0.1f, 0.1f, 1.0f };
   glEnable(GL_LIGHTING);
 
@@ -240,6 +240,7 @@ void cleanup() {
   delete avatar;
   delete camera;
   delete particleSystemShader;
+  delete maze;
 }
 /**
  * Checks the event queue and delegates appropriately
@@ -275,7 +276,7 @@ void handleInput() {
 void renderScene() {
   camera->posCameraSetupView();
 
-  GLfloat lightPosition[] = { camera->posX(), camera->posY(), camera->posZ(),
+  GLfloat lightPosition[] = { camera->posX(), camera->posY(), camera->posZ()+.5,
       0.0 };
   glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
 

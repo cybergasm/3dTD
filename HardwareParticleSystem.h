@@ -62,6 +62,8 @@ class HardwareParticleSystem {
     //anything can be rendered)
     void shaderIs(Shader* shader);
 
+    //Sets the types of particles to render
+    void modeIs(GLenum mode_);
     /**
      * Accessors to each value
      */
@@ -107,6 +109,9 @@ class HardwareParticleSystem {
     uint* lifespans;
     //indices to draw
     std::vector<unsigned> indices;
+
+    //The type of particle
+    GLenum mode;
 
     //renders particles at specified time
     void render(float time);

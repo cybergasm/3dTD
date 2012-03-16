@@ -21,7 +21,7 @@ using namespace std;
 }
 
 HardwareParticleSystem::HardwareParticleSystem(int numParticles_, float aniDuration) :
-  shader(NULL), numParticleTotal(numParticles_), numParticlesSet(0), aniTime(0), duration(aniDuration) {
+  shader(NULL), numParticleTotal(numParticles_), numParticlesSet(0), aniTime(0), duration(aniDuration), mode(GL_TRIANGLES) {
   pos.reserve(numParticleTotal);
   indices.reserve(numParticles_);
   vels = new aiVector3D[numParticleTotal];
@@ -37,6 +37,9 @@ HardwareParticleSystem::~HardwareParticleSystem() {
   delete [] lifespans;
 }
 
+void HardwareParticleSystem::modeIs(GLenum mode_){
+  mode = mode_;
+}
 void HardwareParticleSystem::addParticle(aiVector3D vel, aiVector3D accel, aiVector3D color_, uint lifespan) {
   if (numParticlesSet == numParticleTotal) {
     cerr<<__FILE__<<":Trying to add "<<numParticlesSet<<" particles which is more than "<<numParticleTotal<<"."<<endl;
@@ -154,7 +157,7 @@ void HardwareParticleSystem::render(float time) {
           color));
   GL_CHECK(glVertexAttribPointer(life, 1, GL_UNSIGNED_INT, 0, 0,
           lifespans));
-  GL_CHECK(glDrawElements(GL_POINTS, numParticlesSet, GL_UNSIGNED_INT, &indices[0]));
+  GL_CHECK(glDrawElements(mode, numParticlesSet, GL_UNSIGNED_INT, &indices[0]));
 
   GL_CHECK(glDisableVertexAttribArray(velocity));
   GL_CHECK(glDisableVertexAttribArray(acceleration));

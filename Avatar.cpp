@@ -37,6 +37,8 @@ Avatar::Avatar() :
   srand(time(NULL));
 
   initializeParticles();
+
+  particles.modeIs(GL_LINE_LOOP);
 }
 
 Avatar::~Avatar() {

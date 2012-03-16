@@ -82,7 +82,7 @@ void Maze::render(float framerate) {
     addTile(mazeString[i], i == selectedTile, i);
   }
 
-  turretFactory.updateTime(5.0f * framerate);
+  turretFactory.updateTime(3.0f*framerate);
 
   glPopMatrix();
   GL_CHECK(glUseProgram(0));
