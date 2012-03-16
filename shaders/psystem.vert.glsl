@@ -45,7 +45,7 @@ void main() {
   float ratio = 1 - length(moved) / length(maxMoved);
   
   //Get transformed position and then move how much we had to move
-  gl_Position = (gl_ProjectionMatrix * gl_ModelViewMatrix * vec4(positionIn, 1)) + moved;
+  gl_Position = (gl_ProjectionMatrix * gl_ModelViewMatrix * (vec4(positionIn, 1) + moved));
   
   
   //Modulate the color depending on how far we are from the center and make ourselves get more 

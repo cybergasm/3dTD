@@ -28,7 +28,7 @@ using namespace std;
 
 Avatar::Avatar() :
   x(0), y(0), z(0), xAng(0.0f), yAng(0.0f), halfSideLen(.05),
-      numParticles(2000), aniDuration(20), blurTimer(0), blurBuffer(0), usedBuffers(0),
+      numParticles(1000), aniDuration(20), blurTimer(0), blurBuffer(0), usedBuffers(0),
       particles(numParticles, aniDuration) {
   sideVector.x = 1.0f;
   sideVector.y = 0.0f;
@@ -64,14 +64,18 @@ void Avatar::initializeParticles() {
       vel.z *= 1;
     }
     vel.Normalize();
-    vel /= 100.0f;
+    vel /= 80.0f;
 
     cout << vel.x << " " << vel.y << " " << vel.z << " " << lifespan << endl;
-    lifespan = (rand() % aniDuration + aniDuration * .3f);
+    lifespan = (rand() % aniDuration + aniDuration * .1f);
     color = getParticleColor();
     cout << color.x << " " << color.y << " " << color.z << endl;
     particles.addParticle(vel, aiVector3D(-vel.x/lifespan, -vel.y/lifespan, 0.0), color, lifespan);
   }
+  //Create a vector holding the position of the avatar
+  //and set that to the origin of the particles
+  aiVector3D curPosition(0, 0, 0);
+  particles.uniformLocationIs(curPosition);
 }
 
 aiVector3D Avatar::getParticleColor() {
@@ -112,6 +116,8 @@ void Avatar::render(float framerate) {
   glRotatef(xAng * (180.0f / M_PI), 0, 1, 0);
   glTranslatef(-x, -y, -z);
 
+  glTranslatef(x,y,z);
+
   //Get the buffers our caller was using
   GLint currentDraw, currentRead;
   glGetIntegerv(GL_DRAW_BUFFER, &currentDraw);
@@ -132,10 +138,8 @@ void Avatar::render(float framerate) {
   if (blurTimer % (4*blurBuffer+1) == 0) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   }
-  //Create a vector holding the position of the avatar
-  //and set that to the origin of the particles
-  aiVector3D curPosition(x, y, z);
-  particles.uniformLocationIs(curPosition);
+
+  //gl
   particles.render(framerate);
 
   if (usedBuffers < 4){

@@ -11,6 +11,8 @@
 #include <string>
 
 #include "MazeTile.h"
+#include "TileData.h"
+
 #include "Shader.h"
 
 using namespace std;
@@ -47,6 +49,10 @@ class Maze {
 
     //tile dimensions and space between consecutive ones
     float tileWidth, tileDepth, tileSpacing;
+
+    //The per-tile data
+    vector<TileData> tileData;
+
     //The maze tile we will be rendering in various positions
     MazeTile tile;
 
