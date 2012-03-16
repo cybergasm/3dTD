@@ -106,8 +106,8 @@ void HardwareParticleSystem::render(float time) {
   GLint velocity = glGetAttribLocation(shader->programID(), "velocityIn");
   GLint acceleration = glGetAttribLocation(shader->programID(), "accelerationIn");
   GLint positionIn = glGetAttribLocation(shader->programID(), "positionIn");
-  GLint life = glGetAttribLocation(shader->programID(), "lifespan");
   GLint colorId = glGetAttribLocation(shader->programID(), "color");
+  GLint life = glGetAttribLocation(shader->programID(), "lifespan");
 
   //Some mandatory checks
   if (colorId == -1) {
@@ -139,8 +139,8 @@ void HardwareParticleSystem::render(float time) {
   GL_CHECK(glEnableVertexAttribArray(velocity));
   GL_CHECK(glEnableVertexAttribArray(acceleration));
   GL_CHECK(glEnableVertexAttribArray(positionIn));
-  GL_CHECK(glEnableVertexAttribArray(life));
   GL_CHECK(glEnableVertexAttribArray(colorId));
+  GL_CHECK(glEnableVertexAttribArray(life));
 
   //Create a vector holding the position of the avatar
   //and set that to the origin of the particles
@@ -162,8 +162,8 @@ void HardwareParticleSystem::render(float time) {
   GL_CHECK(glDisableVertexAttribArray(velocity));
   GL_CHECK(glDisableVertexAttribArray(acceleration));
   GL_CHECK(glDisableVertexAttribArray(positionIn));
-  GL_CHECK(glDisableVertexAttribArray(life));
   GL_CHECK(glDisableVertexAttribArray(colorId));
+  GL_CHECK(glDisableVertexAttribArray(life));
 
   GL_CHECK(glUseProgram(oldId));
 }

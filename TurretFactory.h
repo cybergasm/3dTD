@@ -11,6 +11,7 @@
 
 #include "Turret.h"
 #include "FireWheel.h"
+#include "Lightning.h"
 #include "Shader.h"
 
 class TurretFactory {
@@ -19,7 +20,8 @@ class TurretFactory {
     virtual ~TurretFactory();
 
     enum TurretType {
-      FIRE_WHEEL
+      FIRE_WHEEL,
+      LIGHTNING
     };
 
     /**
@@ -35,6 +37,7 @@ class TurretFactory {
     void updateTime(float framerate);
   private:
     FireWheel* fireWheel;
+    Lightning* lightning;
 };
 
 #endif /* TURRETFACTORY_H_ */
