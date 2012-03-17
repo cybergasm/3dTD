@@ -12,6 +12,7 @@
 #include "Turret.h"
 #include "FireWheel.h"
 #include "Lightning.h"
+#include "GravityRain.h"
 #include "Shader.h"
 
 class TurretFactory {
@@ -21,7 +22,8 @@ class TurretFactory {
 
     enum TurretType {
       FIRE_WHEEL,
-      LIGHTNING
+      LIGHTNING,
+      GRAVITY_RAIN
     };
 
     /**
@@ -38,6 +40,7 @@ class TurretFactory {
   private:
     FireWheel* fireWheel;
     Lightning* lightning;
+    GravityRain* gravityRain;
 };
 
 #endif /* TURRETFACTORY_H_ */

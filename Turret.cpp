@@ -7,7 +7,7 @@
 
 #include "Turret.h"
 
-Turret::Turret() {
+Turret::Turret() : timeStep(0){
   // TODO Auto-generated constructor stub
 
 }

@@ -10,7 +10,6 @@
 #include "Maze.h"
 #include "TurretFactory.h"
 
-
 using namespace std;
 
 #ifndef M_PI
@@ -186,6 +185,8 @@ void keyPressed(sf::Key::Code key) {
     maze->addTurret(TurretFactory::FIRE_WHEEL);
   } else if (key == sf::Key::Num2) {
     maze->addTurret(TurretFactory::LIGHTNING);
+  } else if (key == sf::Key::Num3) {
+    maze->addTurret(TurretFactory::GRAVITY_RAIN);
   } else if (key == sf::Key::Up) {
     //if last orientation is forward, we try up
     if (mazeString.at(mazeString.length() - 1) == 'f') {
@@ -278,8 +279,8 @@ void handleInput() {
 void renderScene() {
   camera->posCameraSetupView();
 
-  GLfloat lightPosition[] = { camera->posX(), camera->posY(), camera->posZ()+.5,
-      0.0 };
+  GLfloat lightPosition[] = { camera->posX(), camera->posY(), camera->posZ()
+      + .5, 0.0 };
   glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

@@ -20,6 +20,7 @@ TurretFactory::TurretFactory(Shader* particleSystemShader) {
   }
   fireWheel = new FireWheel(particleSystemShader);
   lightning = new Lightning(simpleShader);
+  gravityRain = new GravityRain(particleSystemShader);
 }
 
 TurretFactory::~TurretFactory() {
@@ -34,6 +35,9 @@ Turret* TurretFactory::getTurret(TurretType type) {
     case LIGHTNING:
       return lightning;
       break;
+    case GRAVITY_RAIN:
+      return gravityRain;
+      break;
     default:
       cerr << "Cannot find turret of specified type."<<endl;
       return NULL;
@@ -44,4 +48,5 @@ Turret* TurretFactory::getTurret(TurretType type) {
 void TurretFactory::updateTime(float framerate) {
   fireWheel->updateTime(10.0f*framerate);
   lightning->updateTime(1);
+  gravityRain->updateTime(5.0f*framerate);
 }
