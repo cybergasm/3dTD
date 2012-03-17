@@ -39,6 +39,48 @@ Maze::~Maze() {
   delete tileShader;
 }
 
+float Maze::getTileWidth() {
+  return tileWidth;
+}
+
+float Maze::getTileDepth() {
+  return tileDepth;
+}
+
+float Maze::getTileSpacing() {
+  return tileSpacing;
+}
+
+float Maze::getTileDistance(unsigned int index) {
+  if (index >= mazeString.length() - 1) return 0.0f;
+
+  if (mazeString[index+1] != 'u' && mazeString[index+1] != 'd'){
+    return tileDepth + tileSpacing;
+  } else if (mazeString[index+1] == 'u'){
+    return tileDepth;
+  } else {
+    return tileDepth + tileSpacing + .1;
+  }
+}
+aiVector3D Maze::getTileDirection(unsigned int index) {
+  if (index >= mazeString.length()) return aiVector3D(0, 0, 0);
+
+  char tile = mazeString[index];
+
+  switch (tile) {
+    case 'f':
+      return aiVector3D(0, 0, 1);
+    case 'l':
+      return aiVector3D(-1, 0, 0);
+    case 'r':
+      return aiVector3D(1, 0, 0);
+    case 'u':
+      return aiVector3D(0, 1, 0);
+    case 'd':
+      return aiVector3D(0, -1, 0);
+  }
+  return aiVector3D(0,0,0);
+}
 void Maze::selectedInc() {
   if (selectedTile == mazeString.length() - 1) return;
   selectedTile++;
@@ -64,8 +106,8 @@ void Maze::parseMazeString() {
 void Maze::addTurret(TurretFactory::TurretType type) {
   TileData data = tileData.at(selectedTile);
   data.addTurret(type);
-  tileData.erase(tileData.begin()+selectedTile);
-  tileData.insert(tileData.begin()+selectedTile, data);
+  tileData.erase(tileData.begin() + selectedTile);
+  tileData.insert(tileData.begin() + selectedTile, data);
 }
 
 void Maze::render(float framerate) {
@@ -82,7 +124,7 @@ void Maze::render(float framerate) {
     addTile(mazeString[i], i == selectedTile, i);
   }
 
-  turretFactory.updateTime(3.0f*framerate);
+  turretFactory.updateTime(3.0f * framerate);
 
   glPopMatrix();
   GL_CHECK(glUseProgram(0));

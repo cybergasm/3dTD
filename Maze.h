@@ -39,6 +39,24 @@ class Maze {
     void selectedDec();
 
     /**
+     * Getters for dimension
+     */
+    float getTileWidth();
+    float getTileDepth();
+    float getTileSpacing();
+
+    /**
+     * Returns direction of travel across specified
+     * tile
+     */
+    aiVector3D getTileDirection(unsigned int index);
+
+    /**
+     * Returns how far one has to travel along tile at
+     * index
+     */
+    float getTileDistance(unsigned int index);
+    /**
      * Adds turret of specified type to tile
      */
     void addTurret(TurretFactory::TurretType type);
@@ -110,6 +128,8 @@ class Maze {
      * Renders turrets for given tile
      */
     void renderTurrets(unsigned int turret);
+
+
 };
 
 #endif /* MAZE_H_ */
