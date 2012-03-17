@@ -80,10 +80,6 @@ void Maze::render(float framerate) {
 
   for (unsigned int i = 0; i < mazeString.length(); i++) {
     addTile(mazeString[i], i == selectedTile, i);
-    if (i==1){
-      turretFactory.getTurret(TurretFactory::LIGHTNING)->render();
-      turretFactory.getTurret(TurretFactory::LIGHTNING)->updateTime(1);
-    }
   }
 
   turretFactory.updateTime(3.0f*framerate);

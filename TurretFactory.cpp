@@ -43,4 +43,5 @@ Turret* TurretFactory::getTurret(TurretType type) {
 
 void TurretFactory::updateTime(float framerate) {
   fireWheel->updateTime(10.0f*framerate);
+  lightning->updateTime(1);
 }

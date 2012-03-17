@@ -21,7 +21,7 @@ using namespace std;
 }
 
 Lightning::Lightning(Shader* shader_) :
-  shader(shader_), color(1, 1, 0), frameCount(0) {
+  shader(shader_), color(1, 1, .5), frameCount(0), paused(false) {
 }
 
 Lightning::~Lightning() {
@@ -30,47 +30,101 @@ Lightning::~Lightning() {
 
 void Lightning::render() {
   if (frameCount == 0) {
+    frameCount = rand() % 15 + 16;
+    if (!paused) {
+      paused = true;
+      return;
+    } else {
+      paused = false;
+    }
     vertices.clear();
     vertexIndex.clear();
     colors.clear();
-    float height = 1.0f;
-    float xOff = 0.0f;
-    float zOff = 0.0f;
-    aiVector3D leader(xOff, height, zOff);
     int indexCount = 0;
-    vertices.push_back(leader);
-    vertexIndex.push_back(indexCount);
-    indexCount++;
-    float chance = 0.0f;
-    while (height > 0) {
-      chance = (rand() % 100) / 100.0f;
-      if (chance < .25f) {
-        xOff += .01;
-      } else if (chance >= .25f && chance < .50f) {
-        zOff += .01;
-      }
-      height -= .1f;
 
-      //We push twice to ensure that this index is the end of the last line
-      //and beginning of next
-      vertices.push_back(aiVector3D(xOff, height, zOff));
-      vertexIndex.push_back(indexCount);
-      indexCount++;
-      vertices.push_back(aiVector3D(xOff, height, zOff));
-      vertexIndex.push_back(indexCount);
-      indexCount++;
+    for (int i = 0; i < 2; i++) {
+      float chance = (rand() % 100) / 100.0f;
+      float sign = (chance > .5 ? -1 : 1);
+      float initX = sign * ((rand() % 10*i) / 100.0f);
+      float lineWidth = (rand() % 5+1);
+      glLineWidth(lineWidth);
+      renderBolt(aiVector3D(initX, 1.0f, 0.0f), 1.0f, indexCount);
     }
-    colors.assign(2*vertices.size()+1, color);
-    frameCount = rand() % 4 + 6;
+
+    colors.assign(2 * vertices.size() + 1, color);
     renderGenerated();
+
   } else {
-    renderGenerated();
+    if (!paused) {
+      renderGenerated();
+    }
   }
 }
 
 void Lightning::updateTime(float time) {
-  cout<<frameCount<<endl;
-  frameCount--;
+  if (frameCount != 0) {
+    frameCount--;
+  }
+}
+
+void Lightning::renderBolt(aiVector3D initPosition, float len,
+    int& indexCount) {
+  float height = initPosition.y;
+  float xOff = initPosition.x;
+  float zOff = initPosition.z;
+  float chance = (rand() % 100) / 100.0f;
+  aiVector3D leader(xOff, height, zOff);
+  vertices.push_back(leader);
+  vertexIndex.push_back(indexCount);
+  indexCount++;
+  while ((initPosition.y - height) < len) {
+    chance = (rand() % 100) / 100.0f;
+    //changing the direction possibly
+    if (chance < .25f) {
+      chance = (rand() % 100) / 100.0f;
+      if (xOff < .25 && chance > .5) {
+        xOff += .05;
+      } else if (xOff > -.25 && chance < .5) {
+        xOff -= .05;
+      }
+    } else if (chance >= .25f && chance < .50f) {
+      chance = (rand() % 100) / 100.0f;
+      if (zOff < .25 && chance > .5) {
+        zOff += .05;
+      } else if (zOff > -.25 && chance < .5) {
+        zOff -= .05;
+      }
+    }
+
+    height -= .05f;
+
+    //We push once here to ensure we finish the line started by the
+    //point before
+    vertices.push_back(aiVector3D(xOff, height, zOff));
+    vertexIndex.push_back(indexCount);
+    indexCount++;
+
+    if ((initPosition.y - height) < len) {
+      chance = (rand() % 100) / 100.0f;
+      if (chance < .25) {
+        //we are branching so we want to call ourselves starting at this point to make
+        //another smaller branch
+        renderBolt(aiVector3D(xOff, height, zOff), (len - (initPosition.y - height)) / 2.0f,
+            indexCount);
+        //once we've rendered side branch have to place this point back
+        //so that the following points of current branch connect to it
+        vertices.push_back(aiVector3D(xOff, height, zOff));
+        vertexIndex.push_back(indexCount);
+        indexCount++;
+      } else {
+        //no add this point again so it starts the next line
+        vertices.push_back(aiVector3D(xOff, height, zOff));
+        vertexIndex.push_back(indexCount);
+        indexCount++;
+      }
+    }
+
+  }
 }
 void Lightning::renderGenerated() {
   GLint oldId;

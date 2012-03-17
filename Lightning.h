@@ -42,8 +42,14 @@ class Lightning : public Turret{
     //does not just flicker
     unsigned int frameCount;
 
+    //if we are rendering or taking a pause
+    bool paused;
+
     //Sends information to shader
     void renderGenerated();
+
+    //renders a bolt starting from height and xoffset and going for specified length
+    void renderBolt(aiVector3D initPositions, float len, int& indexCount);
 };
 
 #endif /* LIGHTNING_H_ */

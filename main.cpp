@@ -184,6 +184,8 @@ void keyPressed(sf::Key::Code key) {
     maze->selectedDec();
   } else if (key == sf::Key::Num1) {
     maze->addTurret(TurretFactory::FIRE_WHEEL);
+  } else if (key == sf::Key::Num2) {
+    maze->addTurret(TurretFactory::LIGHTNING);
   } else if (key == sf::Key::Up) {
     //if last orientation is forward, we try up
     if (mazeString.at(mazeString.length() - 1) == 'f') {
