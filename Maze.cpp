@@ -22,8 +22,8 @@ Maze::Maze(string mazeString_, Shader* psystemShader) :
   mazeString(mazeString_), tileWidth(.5), tileDepth(.5), tileSpacing(.05),
       particleSystemShader(psystemShader), turretFactory(particleSystemShader),
       tile(tileWidth, tileDepth), numTilesForward(0), numTilesLeft(0),
-      numTilesRight(0), numTilesUp(0), numTilesDown(0), numTiles(0),
-      selectedTile(0) {
+      numTilesRight(0), numTilesUp(0), numTilesDown(0), numUpDownRuns(0),
+      numTiles(0), selectedTile(0) {
   tileShader = new Shader("shaders/mazetile");
 
   if (!tileShader->loaded()) {
@@ -51,16 +51,93 @@ float Maze::getTileSpacing() {
   return tileSpacing;
 }
 
+MoveSequence Maze::getMove(unsigned int index) {
+  MoveSequence move;
+  if (index >= mazeString.length() - 1) {
+    move.distances.push_back(0.0f);
+    move.directions.push_back(aiVector3D(0, 0, 0));
+    return move;
+  }
+
+  char prevTile;
+  if (index > 0) {
+    prevTile = mazeString[index - 1];
+  } else {
+    prevTile = mazeString[index];
+  }
+
+  char tile = mazeString[index];
+  char nextTile = mazeString[index + 1];
+
+  cout << "tile " << tile << " next " << nextTile << " prev " << prevTile
+      << endl;
+  if ((prevTile == 'f' || prevTile == 'l' || prevTile == 'r') && tile == 'd') {
+    float distanceToTile = .12;
+    float distanceAcrossTile = tileDepth;
+    move.distances.push_back(distanceAcrossTile);
+    move.distances.push_back(distanceToTile);
+    move.directions.push_back(aiVector3D(0, -1, 0));
+    move.directions.push_back(aiVector3D(0, 0, 1));
+  } else if (tile == 'u' && nextTile == 'f') {
+    float distanceToTile = tileSpacing + .1;
+    float distanceAcrossTile = tileDepth;
+    move.distances.push_back(distanceToTile);
+    move.distances.push_back(distanceAcrossTile);
+    move.directions.push_back(aiVector3D(0, 0, 1));
+    move.directions.push_back(aiVector3D(0, 1, 0));
+  } else if (tile == 'f') {
+    move.distances.push_back(tileDepth + tileSpacing);
+    move.directions.push_back(aiVector3D(0, 0, 1));
+  } else if (tile == 'l') {
+    move.distances.push_back(tileDepth + tileSpacing);
+    move.directions.push_back(aiVector3D(-1, 0, 0));
+  } else if (tile == 'r') {
+    move.distances.push_back(tileDepth + tileSpacing);
+    move.directions.push_back(aiVector3D(1, 0, 0));
+  } else if (tile == 'd') {
+    move.distances.push_back(tileDepth + tileSpacing + .1);
+    move.directions.push_back(aiVector3D(0, -1, 0));
+  } else if (tile == 'u') {
+    move.distances.push_back(tileDepth);
+    move.directions.push_back(aiVector3D(0, 1, 0));
+  }
+  return move;
+}
 float Maze::getTileDistance(unsigned int index) {
   if (index >= mazeString.length() - 1) return 0.0f;
 
-  if (mazeString[index+1] != 'u' && mazeString[index+1] != 'd'){
-    return tileDepth + tileSpacing;
-  } else if (mazeString[index+1] == 'u'){
-    return tileDepth;
+  /**
+   * How far one has to travel is determined by their position in their maze,
+   * and surrounding tiles.
+   */
+
+  //If we are the second to last tile, we have to make special adjustments
+  //to ensure we don't go into the tile that the user is changing
+  if (index == mazeString.length() - 2) {
+    //if it is a forward tile we want to stop right before the end
+    if (mazeString[index + 1] != 'u' && mazeString[index + 1] != 'd') {
+      return tileDepth;
+    } else if (mazeString[index + 1] == 'u') {
+      return tileDepth + .1;
+    }
   } else {
-    return tileDepth + tileSpacing + .1;
+    if (mazeString[index + 1] == 'f' && mazeString[index] == 'd') {
+      //since going from a downward tile to a forward one the
+      //tile starts before the downward one ends
+      return tileDepth - .1;
+    } else if (mazeString[index + 1] != 'u' && mazeString[index + 1] != 'd') {
+      return tileDepth + tileSpacing;
+    } else if (mazeString[index + 1] == 'u') {
+      return tileDepth;
+    } else {
+      return tileDepth + tileSpacing + .1;
+    }
   }
+  return 0.0f;
+}
+
+int Maze::getNumTiles() {
+  return mazeString.length();
 }
 aiVector3D Maze::getTileDirection(unsigned int index) {
   if (index >= mazeString.length()) return aiVector3D(0, 0, 0);
@@ -79,7 +156,7 @@ aiVector3D Maze::getTileDirection(unsigned int index) {
     case 'd':
       return aiVector3D(0, -1, 0);
   }
-  return aiVector3D(0,0,0);
+  return aiVector3D(0, 0, 0);
 }
 void Maze::selectedInc() {
   if (selectedTile == mazeString.length() - 1) return;
@@ -114,7 +191,7 @@ void Maze::render(float framerate) {
   GL_CHECK(glUseProgram(tileShader->programID()));
 
   numTilesLeft = numTilesRight = numTilesDown = numTilesUp = numTilesForward
-      = 0;
+      = numUpDownRuns = 0;
 
   glPushMatrix();
   //render first tile
@@ -179,6 +256,7 @@ void Maze::renderTileRight(bool selected, unsigned int index) {
 
 void Maze::renderTileUp(bool selected, unsigned int index) {
   numTilesUp++;
+
   //Reset original matrix and put it back
   //on the stack
   glPopMatrix();
@@ -190,9 +268,11 @@ void Maze::renderTileUp(bool selected, unsigned int index) {
   //we add half to get it to move to the end of the last tile
   float displacementForward = numTilesForward + .5;
 
-  glTranslatef(displacementLR * tileWidth + displacementLR * tileSpacing,
+  glTranslatef(
+      displacementLR * tileWidth + displacementLR * tileSpacing,
       displacementUD * tileDepth + displacementUD * tileSpacing,
-      displacementForward * tileDepth + displacementForward * tileSpacing);
+      displacementForward * tileDepth + displacementForward * tileSpacing + .1
+          * (numUpDownRuns));
 
   glRotatef(-90, 1, 0, 0);
   tile.render(tileShader->programID(), selected);
@@ -202,7 +282,10 @@ void Maze::renderTileUp(bool selected, unsigned int index) {
   glPushMatrix();
 
   //want to move the next tile entirely past us
-
+  //See if this tile ends a run of up tiles
+  if (index < mazeString.length() - 1 && mazeString[index + 1] != 'u') {
+    numUpDownRuns++;
+  }
   //Reset the number of displacementUD to be the number we have seen in the
   //two directions
   displacementUD = numTilesUp - numTilesDown;
@@ -210,9 +293,11 @@ void Maze::renderTileUp(bool selected, unsigned int index) {
   //which is fixed at .1; this is the .1;
   displacementForward = numTilesForward;
   //Move us to this tile
-  glTranslatef(displacementLR * tileWidth + displacementLR * tileSpacing,
+  glTranslatef(
+      displacementLR * tileWidth + displacementLR * tileSpacing,
       displacementUD * tileDepth + displacementUD * tileSpacing,
-      displacementForward * tileDepth + displacementForward * tileSpacing + .1);
+      displacementForward * tileDepth + displacementForward * tileSpacing + .1
+          * (numUpDownRuns));
 }
 
 void Maze::renderTileDown(bool selected, unsigned int index) {
@@ -231,9 +316,11 @@ void Maze::renderTileDown(bool selected, unsigned int index) {
   //it a height extra since it rotates in as opposed to away
   float displacementForward = numTilesForward + .5 + .1 + tileSpacing;
 
-  glTranslatef(displacementLR * tileWidth + displacementLR * tileSpacing,
+  glTranslatef(
+      displacementLR * tileWidth + displacementLR * tileSpacing,
       displacementUD * tileDepth + displacementUD * tileSpacing,
-      displacementForward * tileDepth + displacementForward * tileSpacing);
+      displacementForward * tileDepth + displacementForward * tileSpacing + .1
+          * (numUpDownRuns));
 
   glRotatef(90, 1, 0, 0);
   tile.render(tileShader->programID(), selected);
@@ -243,6 +330,10 @@ void Maze::renderTileDown(bool selected, unsigned int index) {
   glPushMatrix();
 
   //want to move the next tile entirely past us
+  //See if this tile ends a run of up tiles
+  if (index < mazeString.length() - 1 && mazeString[index + 1] != 'd') {
+    numUpDownRuns++;
+  }
 
   //Reset the number of displacementUD to be the number we have seen in the
   //two directions
@@ -251,9 +342,11 @@ void Maze::renderTileDown(bool selected, unsigned int index) {
   //which is fixed at .1; this is the .1;
   displacementForward = numTilesForward;
   //Move us to this tile
-  glTranslatef(displacementLR * tileWidth + displacementLR * tileSpacing,
+  glTranslatef(
+      displacementLR * tileWidth + displacementLR * tileSpacing,
       displacementUD * tileDepth + displacementUD * tileSpacing,
-      displacementForward * tileDepth + displacementForward * tileSpacing + .1);
+      displacementForward * tileDepth + displacementForward * tileSpacing + .1
+          * (numUpDownRuns));
 }
 
 void Maze::renderTurrets(unsigned int index) {

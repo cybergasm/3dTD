@@ -35,6 +35,9 @@ class Creep {
     //Where they are in world coordinates
     aiVector3D position;
 
+    //The sequence of moves we have to perform
+    MoveSequence move;
+
     //Vector the direction of which we are moving
     aiVector3D direction;
 

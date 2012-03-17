@@ -19,7 +19,7 @@
 #include "Creep.h"
 
 Creep::Creep(Shader* creepShader, Maze* maze_) :
-  maze(maze_), currentTile(0), movementRate(.15), position(0.0f, .10f, 0.3f),
+  maze(maze_), currentTile(0), movementRate(.15), position(0.0f, .10f, 0.25f),
       distanceLeft(0.0f), shader(creepShader), width(.2), height(.2) {
   // TODO Auto-generated constructor stub
   colors.push_back(aiVector3D(.2, 0.0, .7));
@@ -34,9 +34,18 @@ Creep::~Creep() {
 
 void Creep::render(float framerate) {
   if (distanceLeft <= 0.0f) {
-    distanceLeft = maze->getTileDistance(currentTile);
-    direction = maze->getTileDirection(currentTile);
-    currentTile++;
+    if (move.directions.size() == 0) {
+      move = maze->getMove(currentTile);
+    }
+    distanceLeft = move.distances.at(move.distances.size() - 1);
+    move.distances.pop_back();
+    direction = move.directions.at(move.directions.size() - 1);
+    move.directions.pop_back();
+    //In case we reached the end
+    if (currentTile != maze->getNumTiles() - 1) {
+      cout<<currentTile<<endl;
+      currentTile++;
+    }
   }
 
   float moveAmount = movementRate * framerate;

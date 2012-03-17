@@ -17,6 +17,11 @@
 
 using namespace std;
 
+typedef struct {
+    vector<float> distances;
+    vector<aiVector3D> directions;
+} MoveSequence;
+
 class Maze {
   public:
     Maze(string mazeString_, Shader* psystemShader );
@@ -46,6 +51,13 @@ class Maze {
     float getTileSpacing();
 
     /**
+     * Returns the appropriate sequence of moves
+     * needed to move onto the next tile from tile at
+     * index
+     */
+    MoveSequence getMove(unsigned int index);
+
+    /**
      * Returns direction of travel across specified
      * tile
      */
@@ -56,6 +68,11 @@ class Maze {
      * index
      */
     float getTileDistance(unsigned int index);
+
+    /**
+     * Gets number of tiles
+     */
+    int getNumTiles();
     /**
      * Adds turret of specified type to tile
      */
@@ -110,6 +127,10 @@ class Maze {
     float numTilesRight;
     float numTilesUp;
     float numTilesDown;
+    //We need to keep track of the number of runs we have had
+    //going up and down so that we can offset in the forward
+    //direction relative to the height of blocks
+    float numUpDownRuns;
 
     //Global count of tiles for parsing
     int numTiles;
