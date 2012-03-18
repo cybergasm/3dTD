@@ -7,15 +7,18 @@
 
 #include "CreepManager.h"
 
+
 CreepManager::CreepManager(Maze* maze_) :
   nextCreepTime(0), maze(maze_) {
   // TODO Auto-generated constructor stub
-  creepShader = new Shader("shaders/simple");
+  creepShader = new Shader("shaders/creep");
   if (!creepShader->loaded()) {
     cerr << "Error loading creep shader." << endl;
     cerr << creepShader->errors() << endl;
     exit(-1);
   }
+
+  creepTexture.LoadFromFile("models/creep_opacity_texture1.jpg");
 }
 
 CreepManager::~CreepManager() {
@@ -30,7 +33,7 @@ void CreepManager::updateTime(float framerate) {
 
 void CreepManager::updateCreeps() {
   if (nextCreepTime <= 0.0f) {
-    creeps .push_back(Creep(creepShader, maze));
+    creeps .push_back(Creep(creepShader, maze, &creepTexture));
     nextCreepTime = (40.0f + rand() % 20);
   }
 

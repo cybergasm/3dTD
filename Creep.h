@@ -14,10 +14,11 @@
 #include "Shader.h"
 
 #include "assimp/aiVector3D.h"
+#include "SFML/Graphics/Image.hpp"
 
 class Creep {
   public:
-    Creep(Shader* creepShader, Maze* maze_);
+    Creep(Shader* creepShader, Maze* maze_, sf::Image* texture_);
     virtual ~Creep();
 
     void render(float framerate);
@@ -63,9 +64,12 @@ class Creep {
     //Creep dimensions
     float width, height;
 
-    //Vertex colors
+    //The image with which to texture creep
+    sf::Image* texture;
+    //Vertex and normals
     std::vector<aiVector3D> colors;
-
+    std::vector<aiVector3D> normals;
+    std::vector<aiVector3D> texCoords;
     //The status of this creep
     CreepStatus status;
 };

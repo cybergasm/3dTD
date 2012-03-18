@@ -18,14 +18,24 @@
 
 #include "Creep.h"
 
-Creep::Creep(Shader* creepShader, Maze* maze_) :
+Creep::Creep(Shader* creepShader, Maze* maze_, sf::Image* texture_) :
   maze(maze_), currentTile(0), movementRate(.15), position(0.0f, .10f, 0.25f),
-      distanceLeft(0.0f), shader(creepShader), width(.2), height(.2), status(CREEP_ALIVE) {
-  // TODO Auto-generated constructor stub
+      distanceLeft(0.0f), shader(creepShader), width(.2), height(.2),
+      texture(texture_), status(CREEP_ALIVE) {
   colors.push_back(aiVector3D(.2, 0.0, .7));
   colors.push_back(aiVector3D(.2, 0.0, .7));
   colors.push_back(aiVector3D(.2, 0.0, .7));
   colors.push_back(aiVector3D(.2, 0.0, .7));
+
+  normals.push_back(aiVector3D(1, 0, 0));
+  normals.push_back(aiVector3D(1, 0, 0));
+  normals.push_back(aiVector3D(1, 0, 0));
+  normals.push_back(aiVector3D(1, 0, 0));
+
+  texCoords.push_back(aiVector3D(0, 0, 0));
+  texCoords.push_back(aiVector3D(1, 0, 0));
+  texCoords.push_back(aiVector3D(1, 1, 0));
+  texCoords.push_back(aiVector3D(0, 1, 0));
 }
 
 Creep::~Creep() {
@@ -65,7 +75,7 @@ void Creep::render(float framerate) {
   /**
    * Set the vertex positions relative to the current center
    */
-  unsigned int vertexIndex[4] = {0, 1, 2, 3};
+  unsigned int vertexIndex[4] = { 0, 1, 2, 3 };
   aiVector3D vertices[4];
 
   vertices[0].x = position.x - width / 2.0f;
@@ -87,6 +97,9 @@ void Creep::render(float framerate) {
    */
   GLint positionIn = glGetAttribLocation(shader->programID(), "positionIn");
   GLint colorId = glGetAttribLocation(shader->programID(), "colorIn");
+  GLint normalIn = glGetAttribLocation(shader->programID(), "normalIn");
+  GLint texCoordIn = glGetAttribLocation(shader->programID(), "texCoordIn");
+  GLint opac = glGetUniformLocation(shader->programID(), "opacityMap");
 
   if (positionIn == -1) {
     cerr << "Error getting position handle in Lightning." << endl;
@@ -96,18 +109,42 @@ void Creep::render(float framerate) {
     cerr << "Error getting color handle in Lightning." << endl;
   }
 
+  if (normalIn == -1) {
+    cerr << "Error retrieving normal in for creep." << endl;
+  }
+
+  if (opac == -1) {
+    cerr << "Error retrieving opacity in for creep." << endl;
+  }
+
+  if (texCoordIn == -1) {
+    cerr << "Error retrieving texCoordIn for creep." << endl;
+  }
+
+  glUniform1i(opac, 0);
+  glActiveTexture(GL_TEXTURE0);
+  texture->Bind();
+
   GL_CHECK(glEnableVertexAttribArray(positionIn));
   GL_CHECK(glEnableVertexAttribArray(colorId));
+  GL_CHECK(glEnableVertexAttribArray(normalIn));
+  GL_CHECK(glEnableVertexAttribArray(texCoordIn));
 
   GL_CHECK(glVertexAttribPointer(positionIn, 3, GL_FLOAT, 0, sizeof(aiVector3D),
           vertices));
   GL_CHECK(glVertexAttribPointer(colorId, 3, GL_FLOAT, 0, sizeof(aiVector3D),
           &colors[0]));
+  GL_CHECK(glVertexAttribPointer(normalIn, 3, GL_FLOAT, 0, sizeof(aiVector3D),
+          &normals[0]));
+  GL_CHECK(glVertexAttribPointer(texCoordIn, 2, GL_FLOAT, 0, sizeof(aiVector3D),
+          &texCoords[0]));
 
   GL_CHECK(glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, vertexIndex));
 
   GL_CHECK(glDisableVertexAttribArray(positionIn));
   GL_CHECK(glDisableVertexAttribArray(colorId));
+  GL_CHECK(glDisableVertexAttribArray(normalIn));
+  GL_CHECK(glDisableVertexAttribArray(texCoordIn));
 
   GL_CHECK(glUseProgram(oldId));
 }

@@ -14,6 +14,8 @@
 #include "Shader.h"
 #include "Maze.h"
 
+#include "SFML/Graphics/Image.hpp"
+
 using namespace std;
 
 class CreepManager {
@@ -56,6 +58,11 @@ class CreepManager {
      * Pointer to maze for the creeps
      */
     Maze* maze;
+
+    /**
+     * The texture with which to render creeps
+     */
+    sf::Image creepTexture;
 };
 
 #endif /* CREEPMANAGER_H_ */

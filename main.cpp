@@ -91,9 +91,9 @@ void glInit() {
   glDepthMask(GL_TRUE);
 
   //Enable lighting and set some color
-  GLfloat lightDiffuse[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-  GLfloat lightSpecular[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-  GLfloat lightAmbient[] = { 0.1f, 0.1f, 0.1f, 1.0f };
+  GLfloat lightDiffuse[] = { 0.34f, .64f, .86f, 1.0f };
+  GLfloat lightSpecular[] = { 0.23f, 0.45f, 0.32f, 1.0f };
+  GLfloat lightAmbient[] = { 0.4f, 0.3f, 0.1f, 1.0f };
   glEnable(GL_LIGHTING);
 
   glLightfv(GL_LIGHT0, GL_DIFFUSE, lightDiffuse);
