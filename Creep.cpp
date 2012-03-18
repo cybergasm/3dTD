@@ -26,20 +26,25 @@ Creep::Creep(Shader* creepShader, Maze* maze_, sf::Image* texture_,
       movementRate(.15), position(0.0f, .10f, 0.25f), distanceLeft(0.0f),
       shader(creepShader), width(.2), height(.2), texture(texture_),
       status(CREEP_ALIVE), originalHealth(100), health(originalHealth) {
-  colors.push_back(aiVector3D(.2, 0.0, .7));
-  colors.push_back(aiVector3D(.2, 0.0, .7));
-  colors.push_back(aiVector3D(.2, 0.0, .7));
-  colors.push_back(aiVector3D(.2, 0.0, .7));
 
-  normals.push_back(aiVector3D(1, 0, 0));
-  normals.push_back(aiVector3D(1, 0, 0));
-  normals.push_back(aiVector3D(1, 0, 0));
-  normals.push_back(aiVector3D(1, 0, 0));
+  for (int i = 0; i < 8; i++) {
+    colors.push_back(aiVector3D(.2, 0.0, .7));
+  }
+
+  for (int i = 0; i < 8; i++) {
+    normals.push_back(aiVector3D(1, 0, 0));
+  }
 
   texCoords.push_back(aiVector3D(0, 0, 0));
   texCoords.push_back(aiVector3D(1, 0, 0));
   texCoords.push_back(aiVector3D(1, 1, 0));
   texCoords.push_back(aiVector3D(0, 1, 0));
+
+  texCoords.push_back(aiVector3D(0, 0, 0));
+  texCoords.push_back(aiVector3D(.1, 0, 0));
+  texCoords.push_back(aiVector3D(.1, .1, 0));
+  texCoords.push_back(aiVector3D(0, .1, 0));
+
 }
 
 Creep::~Creep() {
@@ -57,7 +62,7 @@ void Creep::update(float framerate) {
 
 void Creep::updateHealth(float framerate) {
   //current tile is actually one after we are graphically on
-  TileData curTile = maze->getTileData(currentTile-1);
+  TileData curTile = maze->getTileData(currentTile - 1);
   set<TurretFactory::TurretType> turrets = curTile.getTurrets();
 
   for (set<TurretFactory::TurretType>::iterator iter = turrets.begin(); iter
@@ -103,9 +108,10 @@ void Creep::render(float framerate) {
   /**
    * Set the vertex positions relative to the current center
    */
-  unsigned int vertexIndex[4] = { 0, 1, 2, 3 };
-  aiVector3D vertices[4];
+  unsigned int vertexIndex[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
+  aiVector3D vertices[8];
 
+  //First four are creep vertices
   vertices[0].x = position.x - width / 2.0f;
   vertices[0].y = position.y + height / 2.0f;
 
@@ -118,7 +124,23 @@ void Creep::render(float framerate) {
   vertices[3].x = position.x - width / 2.0f;
   vertices[3].y = position.y - height / 2.0f;
 
-  vertices[0].z = vertices[1].z = vertices[2].z = vertices[3].z = position.z;
+  //Then four for the health bar
+  vertices[4].x = position.x - width / 2.0f;
+  vertices[4].y = position.y + height;
+
+  vertices[5].x = position.x - (width / 2.0f) + width * (health / originalHealth);
+  vertices[5].y = position.y + height;
+
+  vertices[6].x = position.x - (width / 2.0f) + width * (health / originalHealth);
+  vertices[6].y = position.y + height - .05f;
+
+  vertices[7].x = position.x - width / 2.0f;
+  vertices[7].y = position.y + height - .05f;
+
+
+  for (int i = 0; i < 8; i++) {
+    vertices[i].z = position.z;
+  }
 
   /**
    * Pass our stuff in
@@ -167,7 +189,7 @@ void Creep::render(float framerate) {
   GL_CHECK(glVertexAttribPointer(texCoordIn, 2, GL_FLOAT, 0, sizeof(aiVector3D),
           &texCoords[0]));
 
-  GL_CHECK(glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, vertexIndex));
+  GL_CHECK(glDrawElements(GL_QUADS, 8, GL_UNSIGNED_INT, vertexIndex));
 
   GL_CHECK(glDisableVertexAttribArray(positionIn));
   GL_CHECK(glDisableVertexAttribArray(colorId));
