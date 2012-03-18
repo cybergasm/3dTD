@@ -68,8 +68,6 @@ MoveSequence Maze::getMove(unsigned int index) {
 
   char tile = mazeString[index];
 
-  cout << "tile " << tile <<  " prev " << prevTile
-      << endl;
   //Starting a descent
   if ((prevTile == 'f' || prevTile == 'l' || prevTile == 'r') && tile == 'd') {
     //We have to go over the hump to start heading town a streak of downard tiles
@@ -242,8 +240,7 @@ void Maze::renderTileUp(bool selected, unsigned int index) {
   //Reset the number of displacementUD to be the number we have seen in the
   //two directions
   displacementUD = numTilesUp - numTilesDown - .05;
-  //Want to move forward only equal to the height of this block
-  //which is fixed at .1; this is the .1;
+  //Want to move forward only equal to the number of blocks coming foward
   displacementForward = numTilesForward;
   //Move us to this tile
   glTranslatef(

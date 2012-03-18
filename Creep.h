@@ -22,6 +22,19 @@ class Creep {
 
     void render(float framerate);
 
+    /**
+     * The status of the creep
+     */
+    enum CreepStatus {
+      CREEP_ALIVE,
+      CREEP_DEAD,
+      CREEP_ESCAPED
+    };
+
+    /**
+     * Returns the status
+     */
+    CreepStatus getStatus();
   private:
     //We need a maze to get current world 2information
     Maze* maze;
@@ -52,6 +65,9 @@ class Creep {
 
     //Vertex colors
     std::vector<aiVector3D> colors;
+
+    //The status of this creep
+    CreepStatus status;
 };
 
 #endif /* CREEP_H_ */

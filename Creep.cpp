@@ -20,7 +20,7 @@
 
 Creep::Creep(Shader* creepShader, Maze* maze_) :
   maze(maze_), currentTile(0), movementRate(.15), position(0.0f, .10f, 0.25f),
-      distanceLeft(0.0f), shader(creepShader), width(.2), height(.2) {
+      distanceLeft(0.0f), shader(creepShader), width(.2), height(.2), status(CREEP_ALIVE) {
   // TODO Auto-generated constructor stub
   colors.push_back(aiVector3D(.2, 0.0, .7));
   colors.push_back(aiVector3D(.2, 0.0, .7));
@@ -32,6 +32,9 @@ Creep::~Creep() {
   // TODO Auto-generated destructor stub
 }
 
+Creep::CreepStatus Creep::getStatus() {
+  return status;
+}
 void Creep::render(float framerate) {
   if (distanceLeft <= 0.0f) {
     if (move.directions.size() == 0) {
@@ -40,6 +43,9 @@ void Creep::render(float framerate) {
       //In case we reached the end
       if (currentTile != maze->getNumTiles() - 1) {
         currentTile++;
+      } else {
+        status = CREEP_DEAD;
+        return;
       }
     }
     distanceLeft = move.distances.at(move.distances.size() - 1);

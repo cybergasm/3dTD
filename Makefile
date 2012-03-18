@@ -22,7 +22,7 @@ LIBS = -lsfml-network \
 	-lGLEW 
 	
 OBJS = main.o Avatar.o Camera.o Shader.o HardwareParticleSystem.o Maze.o MazeTile.o TileData.o Turret.o FireWheel.o TurretFactory.o \
-	Lightning.o GravityRain.o Creep.o
+	Lightning.o GravityRain.o Creep.o CreepManager.o
 
 all: 3dTD
 

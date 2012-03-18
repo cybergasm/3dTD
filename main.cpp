@@ -10,6 +10,7 @@
 #include "Maze.h"
 #include "TurretFactory.h"
 #include "Creep.h"
+#include "CreepManager.h"
 
 using namespace std;
 
@@ -60,12 +61,11 @@ Avatar* avatar;
  */
 //Shader for anything rendered as a particle system
 Shader* particleSystemShader;
-//Shader for simple transformation
-Shader* simpleShader;
+
 /**
  * Creeps
  */
-Creep* creep;
+CreepManager* creepManager;
 
 void glInit() {
 #ifdef FRAMEWORK_USE_GLEW
@@ -114,12 +114,6 @@ void init() {
     exit(-1);
   }
 
-  simpleShader = new Shader("shaders/simple");
-  if (!simpleShader->loaded()) {
-    cerr << "Error loading simple shader in main."<<endl;
-    cerr << simpleShader->errors() <<endl;
-    exit(-1);
-  }
   avatar = new Avatar();
   avatar->setShader(particleSystemShader);
 
@@ -127,7 +121,7 @@ void init() {
 
   mazeString = "ff";
   maze = new Maze(mazeString, particleSystemShader);
-  creep = new Creep(simpleShader, maze);
+  creepManager = new CreepManager(maze);
   window.ShowMouseCursor(false);
 }
 /**
@@ -310,7 +304,7 @@ void renderScene() {
 
   glPopMatrix();
   maze->render(window.GetFrameTime());
-  creep->render(window.GetFrameTime());
+  creepManager->renderCreeps(window.GetFrameTime());
   avatar->render(window.GetFrameTime());
 }
 
@@ -327,6 +321,9 @@ int main() {
         camera->posY() + camera->atY(), camera->posZ() + camera->atZ() + .05,
         camera->totalXAngle(), camera->totalYAngle(), camera->sideDirection());
 
+    //move the manager forward
+    creepManager->updateTime(window.GetFrameTime());
+    creepManager->updateCreeps();
     //update maze
     maze->mazeStringIs(mazeString);
     renderScene();
