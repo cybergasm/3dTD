@@ -27,6 +27,9 @@ void FireWheel::render() {
   particles.renderAtTime(timeStep);
 }
 
+float FireWheel::damage(int numCreeps) {
+  return 3.0f;
+}
 void FireWheel::initParticles() {
   aiVector3D vel;
   uint lifespan;

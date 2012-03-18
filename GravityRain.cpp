@@ -30,6 +30,9 @@ void GravityRain::render() {
   particles.renderAtTime(timeStep);
 }
 
+float GravityRain::damage(int numCreeps) {
+  return 20.0f/(float) numCreeps;
+}
 void GravityRain::initParticles() {
   aiVector3D vel;
   uint lifespan;

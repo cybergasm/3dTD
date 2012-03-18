@@ -25,6 +25,12 @@ class Turret {
      */
     virtual void updateTime(float time);
 
+    /**
+     * Returns how much damage this turret does based on
+     * how many creeps there are on its tile. The damage is
+     * given in damage per time
+     */
+    virtual float damage(int numCreeps) = 0;
   protected:
     float timeStep;
 };

@@ -12,13 +12,15 @@
 
 #include "Maze.h"
 #include "Shader.h"
+#include "TurretFactory.h"
 
 #include "assimp/aiVector3D.h"
 #include "SFML/Graphics/Image.hpp"
 
 class Creep {
   public:
-    Creep(Shader* creepShader, Maze* maze_, sf::Image* texture_);
+    Creep(Shader* creepShader, Maze* maze_, sf::Image* texture_,
+        TurretFactory* turretFactory);
     virtual ~Creep();
 
     void render(float framerate);
@@ -27,18 +29,24 @@ class Creep {
      * The status of the creep
      */
     enum CreepStatus {
-      CREEP_ALIVE,
-      CREEP_DEAD,
-      CREEP_ESCAPED
+      CREEP_ALIVE, CREEP_DEAD, CREEP_ESCAPED
     };
 
     /**
      * Returns the status
      */
     CreepStatus getStatus();
+
+    /**
+     * Calculate damages and movement
+     */
+    void update(float framerate);
   private:
     //We need a maze to get current world 2information
     Maze* maze;
+
+    //We need turret factory to query damage information
+    TurretFactory* turretFactory;
 
     //Keeps track of which tile this creep is on
     int currentTile;
@@ -66,12 +74,28 @@ class Creep {
 
     //The image with which to texture creep
     sf::Image* texture;
+
     //Vertex and normals
     std::vector<aiVector3D> colors;
     std::vector<aiVector3D> normals;
     std::vector<aiVector3D> texCoords;
+
     //The status of this creep
     CreepStatus status;
+
+    //Creep health and original health
+    float originalHealth;
+    float health;
+
+    /**
+     * Updates location
+     */
+    void updatePosition(float framerate);
+
+    /**
+     * Updates health
+     */
+    void updateHealth(float framerate);
 };
 
 #endif /* CREEP_H_ */

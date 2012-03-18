@@ -17,11 +17,15 @@
 #include <iostream>
 
 #include "Creep.h"
+#include "MazeTile.h"
+#include "Turret.h"
 
-Creep::Creep(Shader* creepShader, Maze* maze_, sf::Image* texture_) :
-  maze(maze_), currentTile(0), movementRate(.15), position(0.0f, .10f, 0.25f),
-      distanceLeft(0.0f), shader(creepShader), width(.2), height(.2),
-      texture(texture_), status(CREEP_ALIVE) {
+Creep::Creep(Shader* creepShader, Maze* maze_, sf::Image* texture_,
+    TurretFactory* turretFactory_) :
+  maze(maze_), turretFactory(turretFactory_), currentTile(0),
+      movementRate(.15), position(0.0f, .10f, 0.25f), distanceLeft(0.0f),
+      shader(creepShader), width(.2), height(.2), texture(texture_),
+      status(CREEP_ALIVE), originalHealth(100), health(originalHealth) {
   colors.push_back(aiVector3D(.2, 0.0, .7));
   colors.push_back(aiVector3D(.2, 0.0, .7));
   colors.push_back(aiVector3D(.2, 0.0, .7));
@@ -45,7 +49,28 @@ Creep::~Creep() {
 Creep::CreepStatus Creep::getStatus() {
   return status;
 }
-void Creep::render(float framerate) {
+
+void Creep::update(float framerate) {
+  updatePosition(framerate);
+  updateHealth(framerate);
+}
+
+void Creep::updateHealth(float framerate) {
+  //current tile is actually one after we are graphically on
+  TileData curTile = maze->getTileData(currentTile-1);
+  set<TurretFactory::TurretType> turrets = curTile.getTurrets();
+
+  for (set<TurretFactory::TurretType>::iterator iter = turrets.begin(); iter
+      != turrets.end(); ++iter) {
+    float damage = turretFactory->getTurret(*iter)->damage(1) * framerate;
+    health -= damage;
+  }
+  if (health <= 0.0f) {
+    status = CREEP_DEAD;
+  }
+}
+
+void Creep::updatePosition(float framerate) {
   if (distanceLeft <= 0.0f) {
     if (move.directions.size() == 0) {
       move = maze->getMove(currentTile);
@@ -54,7 +79,7 @@ void Creep::render(float framerate) {
       if (currentTile != maze->getNumTiles() - 1) {
         currentTile++;
       } else {
-        status = CREEP_DEAD;
+        status = CREEP_ESCAPED;
         return;
       }
     }
@@ -67,6 +92,9 @@ void Creep::render(float framerate) {
   float moveAmount = movementRate * framerate;
   position += direction * moveAmount;
   distanceLeft -= moveAmount;
+}
+
+void Creep::render(float framerate) {
 
   GLint oldId;
   glGetIntegerv(GL_CURRENT_PROGRAM, &oldId);

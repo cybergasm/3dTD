@@ -67,6 +67,9 @@ void Lightning::updateTime(float time) {
   }
 }
 
+float Lightning::damage(int numCreeps) {
+  return numCreeps*5.0f;
+}
 void Lightning::renderBolt(aiVector3D initPosition, float len,
     int& indexCount) {
   float height = initPosition.y;

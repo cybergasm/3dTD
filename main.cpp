@@ -63,6 +63,11 @@ Avatar* avatar;
 Shader* particleSystemShader;
 
 /**
+ * Turrets
+ */
+TurretFactory* turretFactory;
+
+/**
  * Creeps
  */
 CreepManager* creepManager;
@@ -120,8 +125,9 @@ void init() {
   camera = new Camera(nearClip, farClip, fov, initWinHeight, initWinWidth);
 
   mazeString = "ff";
-  maze = new Maze(mazeString, particleSystemShader);
-  creepManager = new CreepManager(maze);
+  turretFactory = new TurretFactory(particleSystemShader);
+  maze = new Maze(mazeString, particleSystemShader, turretFactory);
+  creepManager = new CreepManager(maze, turretFactory);
   window.ShowMouseCursor(false);
 }
 /**

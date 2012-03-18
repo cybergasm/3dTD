@@ -7,9 +7,8 @@
 
 #include "CreepManager.h"
 
-
-CreepManager::CreepManager(Maze* maze_) :
-  nextCreepTime(0), maze(maze_) {
+CreepManager::CreepManager(Maze* maze_, TurretFactory* turretFactory_) :
+  nextCreepTime(0), maze(maze_), turretFactory(turretFactory_) {
   // TODO Auto-generated constructor stub
   creepShader = new Shader("shaders/creep");
   if (!creepShader->loaded()) {
@@ -33,27 +32,32 @@ void CreepManager::updateTime(float framerate) {
 
 void CreepManager::updateCreeps() {
   if (nextCreepTime <= 0.0f) {
-    creeps .push_back(Creep(creepShader, maze, &creepTexture));
+    creeps .push_back(Creep(creepShader, maze, &creepTexture, turretFactory));
     nextCreepTime = (40.0f + rand() % 20);
   }
 
+  /**
+   * Figure out which creeps are dead
+   */
   vector<int> deadCreeps;
-
   int creep = 0;
   for (vector<Creep>::iterator iter = creeps.begin(); iter != creeps.end(); ++iter) {
-    if ((*iter).getStatus() == Creep::CREEP_DEAD) {
+    if ((*iter).getStatus() == Creep::CREEP_DEAD || (*iter).getStatus()
+        == Creep::CREEP_ESCAPED) {
       deadCreeps.push_back(creep);
     }
     creep++;
   }
-
-  for (vector<int>::iterator iter = deadCreeps.begin(); iter != deadCreeps.end(); ++iter) {
-    creeps.erase(creeps.begin()+(*iter));
+  //actually delete the creeps
+  for (vector<int>::iterator iter = deadCreeps.begin(); iter
+      != deadCreeps.end(); ++iter) {
+    creeps.erase(creeps.begin() + (*iter));
   }
 }
 
 void CreepManager::renderCreeps(float framerate) {
   for (vector<Creep>::iterator iter = creeps.begin(); iter != creeps.end(); ++iter) {
+    (*iter).update(framerate);
     (*iter).render(framerate);
   }
 }

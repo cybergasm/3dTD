@@ -20,6 +20,7 @@ class FireWheel : public  Turret {
     FireWheel(Shader* particleSystemShader);
     virtual ~FireWheel();
 
+    float damage(int numCreeps);
     void render();
   private:
     /**

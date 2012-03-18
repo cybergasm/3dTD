@@ -21,7 +21,7 @@ class Lightning : public Turret{
     virtual ~Lightning();
 
     void render();
-
+    float damage(int numCreeps);
     //We override the time function here as
     //we are worrying about frames versus
     //time

@@ -24,7 +24,7 @@ typedef struct {
 
 class Maze {
   public:
-    Maze(string mazeString_, Shader* psystemShader );
+    Maze(string mazeString_, Shader* psystemShader, TurretFactory* turretFactory_ );
     virtual ~Maze();
 
     /**
@@ -61,10 +61,16 @@ class Maze {
      * Gets number of tiles
      */
     int getNumTiles();
+
     /**
      * Adds turret of specified type to tile
      */
     void addTurret(TurretFactory::TurretType type);
+
+    /**
+     * Returns tile data
+     */
+    TileData getTileData(unsigned int index);
   private:
     //The string representing the type of maze to draw. This string can have
     //one of four letters:
@@ -86,7 +92,7 @@ class Maze {
     Shader* particleSystemShader;
 
     //The turret factor
-    TurretFactory turretFactory;
+    TurretFactory* turretFactory;
 
     //The maze tile we will be rendering in various positions
     MazeTile tile;

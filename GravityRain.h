@@ -27,6 +27,8 @@ class GravityRain: public Turret {
     HardwareParticleSystem particles;
 
     void render();
+    float damage(int numCreeps);
+
     /**
      * Sets up the gravity particles
      */

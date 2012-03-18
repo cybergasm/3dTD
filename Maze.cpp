@@ -18,9 +18,9 @@
   }\
 }
 
-Maze::Maze(string mazeString_, Shader* psystemShader) :
+Maze::Maze(string mazeString_, Shader* psystemShader, TurretFactory* turretFactory_) :
   mazeString(mazeString_), tileWidth(.5), tileDepth(.5), tileSpacing(.05),
-      particleSystemShader(psystemShader), turretFactory(particleSystemShader),
+      particleSystemShader(psystemShader), turretFactory(turretFactory_),
       tile(tileWidth, tileDepth), numTilesForward(0), numTilesLeft(0),
       numTilesRight(0), numTilesUp(0), numTilesDown(0), numUpDownRuns(0),
       numTiles(0), selectedTile(0) {
@@ -51,6 +51,11 @@ float Maze::getTileSpacing() {
   return tileSpacing;
 }
 
+TileData Maze::getTileData(unsigned int index) {
+  if (index >= tileData.size()) return TileData();
+
+  return tileData.at(index);
+}
 MoveSequence Maze::getMove(unsigned int index) {
   MoveSequence move;
   if (index >= mazeString.length() - 1) {
@@ -152,7 +157,7 @@ void Maze::render(float framerate) {
     addTile(mazeString[i], i == selectedTile, i);
   }
 
-  turretFactory.updateTime(3.0f * framerate);
+  turretFactory->updateTime(3.0f * framerate);
 
   glPopMatrix();
   GL_CHECK(glUseProgram(0));
@@ -304,7 +309,7 @@ void Maze::renderTurrets(unsigned int index) {
 
   for (set<TurretFactory::TurretType>::iterator iter = tileTurrets.begin(); iter
       != tileTurrets.end(); ++iter) {
-    turretFactory.getTurret(*iter)->render();
+    turretFactory->getTurret(*iter)->render();
   }
 
 }

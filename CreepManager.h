@@ -13,6 +13,7 @@
 #include "Creep.h"
 #include "Shader.h"
 #include "Maze.h"
+#include "TurretFactory.h"
 
 #include "SFML/Graphics/Image.hpp"
 
@@ -20,7 +21,7 @@ using namespace std;
 
 class CreepManager {
   public:
-    CreepManager(Maze* maze_);
+    CreepManager(Maze* maze_, TurretFactory* turretFactory_);
     virtual ~CreepManager();
 
     /**
@@ -63,6 +64,11 @@ class CreepManager {
      * The texture with which to render creeps
      */
     sf::Image creepTexture;
+
+    /**
+     * Turret factory for creep construction
+     */
+    TurretFactory* turretFactory;
 };
 
 #endif /* CREEPMANAGER_H_ */
