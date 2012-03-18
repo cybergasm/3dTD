@@ -156,7 +156,7 @@ void init() {
   creepManager = new CreepManager(maze, turretFactory);
   window.ShowMouseCursor(false);
 
-  instructionTexture.LoadFromFile("models/creep_opacity_texture1.jpg");
+  instructionTexture.LoadFromFile("models/instructionscreen.jpg");
 }
 /**
  * The following functions change how the maze looks based on user input.
