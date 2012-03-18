@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string.h>
 
-#include <bullet/btBulletDynamicsCommon.h>
+#include <stdio.h>
 
 #include "Framework.h"
 #include "Avatar.h"
@@ -17,6 +17,14 @@ using namespace std;
 #ifndef M_PI
 #define M_PI 3.1415926535897932384626433832795028841971693993751058209
 #endif
+
+#define GL_CHECK(x) {\
+  (x);\
+  GLenum error = glGetError();\
+  if (GL_NO_ERROR != error) {\
+    printf("%s\n", gluErrorString(error));\
+  }\
+}
 
 /**
  * Initial window parameters
@@ -61,6 +69,7 @@ Avatar* avatar;
  */
 //Shader for anything rendered as a particle system
 Shader* particleSystemShader;
+Shader* simpleShader;
 
 /**
  * Turrets
@@ -71,6 +80,17 @@ TurretFactory* turretFactory;
  * Creeps
  */
 CreepManager* creepManager;
+
+/**
+ * Logic state
+ */
+//if we are showing instructions
+bool instructions = true;
+
+/**
+ * Instructions
+ */
+sf::Image instructionTexture;
 
 void glInit() {
 #ifdef FRAMEWORK_USE_GLEW
@@ -119,6 +139,12 @@ void init() {
     exit(-1);
   }
 
+  simpleShader = new Shader("shaders/simple");
+  if (!simpleShader->loaded()) {
+    cerr << "error loading simple shader in main." << endl;
+    cerr << simpleShader->errors() << endl;
+    exit(-1);
+  }
   avatar = new Avatar();
   avatar->setShader(particleSystemShader);
 
@@ -129,6 +155,8 @@ void init() {
   maze = new Maze(mazeString, particleSystemShader, turretFactory);
   creepManager = new CreepManager(maze, turretFactory);
   window.ShowMouseCursor(false);
+
+  instructionTexture.LoadFromFile("models/creep_opacity_texture1.jpg");
 }
 /**
  * The following functions change how the maze looks based on user input.
@@ -271,7 +299,9 @@ void handleInput() {
         window.Close();
         break;
       case sf::Event::KeyPressed:
-        keyPressed(evt.Key.Code);
+        if (!instructions) {
+          keyPressed(evt.Key.Code);
+        }
         break;
       case sf::Event::MouseMoved:
         if (window.GetInput().IsMouseButtonDown(sf::Mouse::Left)) {
@@ -286,6 +316,12 @@ void handleInput() {
           mouseReady = false;
         }
         break;
+      case sf::Event::MouseButtonPressed:
+        if (window.GetInput().IsMouseButtonDown(sf::Mouse::Right)) {
+          instructions = !instructions;
+        }
+        break;
+
     }
   }
 }
@@ -314,6 +350,77 @@ void renderScene() {
   avatar->render(window.GetFrameTime());
 }
 
+/**
+ * Full-screen quad containing the instructions graphic. Full-screen
+ * quad was done with tips from:
+ * http://www.opengl.org/archives/resources/faq/technical/transformations.htm
+ */
+void renderInstructions() {
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  aiVector3D vertices[4] = { aiVector3D(-1, -1, -1), aiVector3D(1, -1, -1),
+      aiVector3D(1, 1, 1), aiVector3D(-1, 1, -1) };
+  aiVector3D texCoords[4] = { aiVector3D(0, 1, 0), aiVector3D(1, 1, 0),
+      aiVector3D(1, 0, 0), aiVector3D(0, 0, 0) };
+  unsigned int vertexIndex[4] = { 0, 1, 2, 3 };
+
+  GLint oldId;
+  glGetIntegerv(GL_CURRENT_PROGRAM, &oldId);
+  GL_CHECK(glUseProgram(simpleShader->programID()));
+
+  GLint positionIn = glGetAttribLocation(simpleShader->programID(),
+      "positionIn");
+  GLint texId = glGetAttribLocation(simpleShader->programID(), "texCoordIn");
+  GLint texture = glGetUniformLocation(simpleShader->programID(), "texture");
+  GLint textureFlag = glGetUniformLocation(simpleShader->programID(),
+      "texturing");
+
+  if (positionIn == -1) {
+    cerr << "Error getting position handle for instructions." << endl;
+  }
+
+  if (texId == -1) {
+    cerr << "Error getting texture coords handle for instructions." << endl;
+  }
+
+  if (texture == -1) {
+    cerr << "Error getting texture handle for instructions." << endl;
+  }
+
+  if (textureFlag == -1) {
+    cerr << "Error getting texturing flag for instructions." << endl;
+  }
+
+  GL_CHECK(glEnableVertexAttribArray(positionIn));
+  GL_CHECK(glEnableVertexAttribArray(texId));
+
+  glUniform1f(textureFlag, 1.0f);
+
+  glUniform1i(texture, 0);
+  glActiveTexture(GL_TEXTURE0);
+  instructionTexture.Bind();
+
+  GL_CHECK(
+      glVertexAttribPointer(positionIn, 3, GL_FLOAT, 0, sizeof(aiVector3D),
+          &vertices[0]));
+  GL_CHECK(
+      glVertexAttribPointer(texId, 3, GL_FLOAT, 0, sizeof(aiVector3D),
+          &texCoords[0]));
+
+  GL_CHECK(
+      glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT,
+          &vertexIndex[0]));
+
+  GL_CHECK(glDisableVertexAttribArray(positionIn));
+  GL_CHECK(glDisableVertexAttribArray(texId));
+
+  GL_CHECK(glUseProgram(oldId));
+
+}
 int main() {
   glInit();
   init();
@@ -322,17 +429,22 @@ int main() {
     //I was a little rushed to just get stuff done and the input
     //was not too dynamic in this game.
     handleInput();
-    //Set the avatar position to be in front of the camera.
-    avatar->updatePosition(camera->posX() + camera->atX(),
-        camera->posY() + camera->atY(), camera->posZ() + camera->atZ() + .05,
-        camera->totalXAngle(), camera->totalYAngle(), camera->sideDirection());
+    if (!instructions) {
+      //Set the avatar position to be in front of the camera.
+      avatar->updatePosition(camera->posX() + camera->atX(),
+          camera->posY() + camera->atY(), camera->posZ() + camera->atZ() + .05,
+          camera->totalXAngle(), camera->totalYAngle(), camera->sideDirection());
 
-    //move the manager forward
-    creepManager->updateTime(window.GetFrameTime());
-    creepManager->updateCreeps();
-    //update maze
-    maze->mazeStringIs(mazeString);
-    renderScene();
-    window.Display();
+      //move the manager forward
+      creepManager->updateTime(window.GetFrameTime());
+      creepManager->updateCreeps();
+      //update maze
+      maze->mazeStringIs(mazeString);
+      renderScene();
+      window.Display();
+    } else {
+      window.Display();
+      renderInstructions();
+    }
   }
 }
