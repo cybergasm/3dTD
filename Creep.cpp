@@ -32,7 +32,7 @@ Creep::Creep(Shader* creepShader, Maze* maze_, sf::Image* texture_,
   }
 
   for (int i = 0; i < 8; i++) {
-    normals.push_back(aiVector3D(1, 0, 0));
+    normals.push_back(aiVector3D(0, 0, 1));
   }
 
   texCoords.push_back(aiVector3D(0, 0, 0));
@@ -137,7 +137,14 @@ void Creep::render(float framerate) {
   vertices[7].x = position.x - width / 2.0f;
   vertices[7].y = position.y + height - .05f;
 
-
+  for (int i=4; i<8; i++) {
+    aiVector3D color = colors.at(i);
+    color.x = 1 - (health/originalHealth);
+    color.y = .5*(health/originalHealth);
+    color.z = (health/originalHealth);
+    colors.erase(colors.begin()+i);
+    colors.insert(colors.begin()+i, color);
+  }
   for (int i = 0; i < 8; i++) {
     vertices[i].z = position.z;
   }

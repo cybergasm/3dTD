@@ -8,11 +8,11 @@ varying vec2 texcoord;
 
 //Won't waste time passing stuff in as it is the same for
 //most tiles  
-uniform vec3 Kd = vec3(.25, .25, 24.0);
 uniform vec3 Ks = vec3(.3, .4, 0.34);
 uniform vec3 Ka = vec3(.35, .55, .46);
 
 void main() {
+  vec3 Kd = color.rgb;
   float alpha = 3;
   //Basis of Phong as in assignment 3/2
   vec3 N = normalize(normal);
