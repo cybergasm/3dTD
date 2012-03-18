@@ -36,16 +36,16 @@ void Creep::render(float framerate) {
   if (distanceLeft <= 0.0f) {
     if (move.directions.size() == 0) {
       move = maze->getMove(currentTile);
+
+      //In case we reached the end
+      if (currentTile != maze->getNumTiles() - 1) {
+        currentTile++;
+      }
     }
     distanceLeft = move.distances.at(move.distances.size() - 1);
     move.distances.pop_back();
     direction = move.directions.at(move.directions.size() - 1);
     move.directions.pop_back();
-    //In case we reached the end
-    if (currentTile != maze->getNumTiles() - 1) {
-      cout<<currentTile<<endl;
-      currentTile++;
-    }
   }
 
   float moveAmount = movementRate * framerate;

@@ -58,18 +58,6 @@ class Maze {
     MoveSequence getMove(unsigned int index);
 
     /**
-     * Returns direction of travel across specified
-     * tile
-     */
-    aiVector3D getTileDirection(unsigned int index);
-
-    /**
-     * Returns how far one has to travel along tile at
-     * index
-     */
-    float getTileDistance(unsigned int index);
-
-    /**
      * Gets number of tiles
      */
     int getNumTiles();

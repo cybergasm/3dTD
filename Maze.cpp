@@ -67,26 +67,29 @@ MoveSequence Maze::getMove(unsigned int index) {
   }
 
   char tile = mazeString[index];
-  char nextTile = mazeString[index + 1];
 
-  cout << "tile " << tile << " next " << nextTile << " prev " << prevTile
+  cout << "tile " << tile <<  " prev " << prevTile
       << endl;
+  //Starting a descent
   if ((prevTile == 'f' || prevTile == 'l' || prevTile == 'r') && tile == 'd') {
-    float distanceToTile = .12;
-    float distanceAcrossTile = tileDepth;
+    //We have to go over the hump to start heading town a streak of downard tiles
+    float distanceToTile = .11;
+    float distanceAcrossTile = tileDepth + .05;
     move.distances.push_back(distanceAcrossTile);
     move.distances.push_back(distanceToTile);
     move.directions.push_back(aiVector3D(0, -1, 0));
     move.directions.push_back(aiVector3D(0, 0, 1));
-  } else if (tile == 'u' && nextTile == 'f') {
-    float distanceToTile = tileSpacing + .1;
-    float distanceAcrossTile = tileDepth;
-    move.distances.push_back(distanceToTile);
-    move.distances.push_back(distanceAcrossTile);
-    move.directions.push_back(aiVector3D(0, 0, 1));
-    move.directions.push_back(aiVector3D(0, 1, 0));
   } else if (tile == 'f') {
-    move.distances.push_back(tileDepth + tileSpacing);
+    //If we are going forward we have to change how we move
+    //given if we came from up or down since we have to cross
+    //the height of a brick or less
+    if (prevTile == 'd') {
+      move.distances.push_back(tileDepth + tileSpacing - .015);
+    } else if (prevTile == 'u') {
+      move.distances.push_back(tileDepth + tileSpacing + .1);
+    } else {
+      move.distances.push_back(tileDepth + tileSpacing);
+    }
     move.directions.push_back(aiVector3D(0, 0, 1));
   } else if (tile == 'l') {
     move.distances.push_back(tileDepth + tileSpacing);
@@ -95,69 +98,19 @@ MoveSequence Maze::getMove(unsigned int index) {
     move.distances.push_back(tileDepth + tileSpacing);
     move.directions.push_back(aiVector3D(1, 0, 0));
   } else if (tile == 'd') {
-    move.distances.push_back(tileDepth + tileSpacing + .1);
+    move.distances.push_back(tileDepth + tileSpacing);
     move.directions.push_back(aiVector3D(0, -1, 0));
   } else if (tile == 'u') {
-    move.distances.push_back(tileDepth);
+    move.distances.push_back(tileDepth + .05);
     move.directions.push_back(aiVector3D(0, 1, 0));
   }
   return move;
-}
-float Maze::getTileDistance(unsigned int index) {
-  if (index >= mazeString.length() - 1) return 0.0f;
-
-  /**
-   * How far one has to travel is determined by their position in their maze,
-   * and surrounding tiles.
-   */
-
-  //If we are the second to last tile, we have to make special adjustments
-  //to ensure we don't go into the tile that the user is changing
-  if (index == mazeString.length() - 2) {
-    //if it is a forward tile we want to stop right before the end
-    if (mazeString[index + 1] != 'u' && mazeString[index + 1] != 'd') {
-      return tileDepth;
-    } else if (mazeString[index + 1] == 'u') {
-      return tileDepth + .1;
-    }
-  } else {
-    if (mazeString[index + 1] == 'f' && mazeString[index] == 'd') {
-      //since going from a downward tile to a forward one the
-      //tile starts before the downward one ends
-      return tileDepth - .1;
-    } else if (mazeString[index + 1] != 'u' && mazeString[index + 1] != 'd') {
-      return tileDepth + tileSpacing;
-    } else if (mazeString[index + 1] == 'u') {
-      return tileDepth;
-    } else {
-      return tileDepth + tileSpacing + .1;
-    }
-  }
-  return 0.0f;
 }
 
 int Maze::getNumTiles() {
   return mazeString.length();
 }
-aiVector3D Maze::getTileDirection(unsigned int index) {
-  if (index >= mazeString.length()) return aiVector3D(0, 0, 0);
 
-  char tile = mazeString[index];
-
-  switch (tile) {
-    case 'f':
-      return aiVector3D(0, 0, 1);
-    case 'l':
-      return aiVector3D(-1, 0, 0);
-    case 'r':
-      return aiVector3D(1, 0, 0);
-    case 'u':
-      return aiVector3D(0, 1, 0);
-    case 'd':
-      return aiVector3D(0, -1, 0);
-  }
-  return aiVector3D(0, 0, 0);
-}
 void Maze::selectedInc() {
   if (selectedTile == mazeString.length() - 1) return;
   selectedTile++;
@@ -288,7 +241,7 @@ void Maze::renderTileUp(bool selected, unsigned int index) {
   }
   //Reset the number of displacementUD to be the number we have seen in the
   //two directions
-  displacementUD = numTilesUp - numTilesDown;
+  displacementUD = numTilesUp - numTilesDown - .05;
   //Want to move forward only equal to the height of this block
   //which is fixed at .1; this is the .1;
   displacementForward = numTilesForward;
