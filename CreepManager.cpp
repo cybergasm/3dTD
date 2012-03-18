@@ -33,7 +33,7 @@ void CreepManager::updateTime(float framerate) {
 void CreepManager::updateCreeps() {
   if (nextCreepTime <= 0.0f) {
     creeps .push_back(Creep(creepShader, maze, &creepTexture, turretFactory));
-    nextCreepTime = (40.0f + rand() % 20);
+    nextCreepTime = (10.0f + rand() % 20);
   }
 
   /**

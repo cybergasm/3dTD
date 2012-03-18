@@ -33,6 +33,21 @@ class TileData {
      * Gets turrets
      */
     set<TurretFactory::TurretType> getTurrets();
+
+    /**
+     * Adds a creep to the tile
+     */
+    void addCreep();
+
+    /**
+     * Removes a creep from the tile
+     */
+    void removeCreep();
+
+    /**
+     * Tells how many creeps are on tile
+     */
+    int getNumCreeps();
   private:
 
     /**
@@ -42,6 +57,10 @@ class TileData {
      */
     set<TurretFactory::TurretType> turrets;
 
+    /**
+     * Count of creeps on tile
+     */
+    int numCreeps;
 
 };
 

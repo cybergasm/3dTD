@@ -67,7 +67,7 @@ void Creep::updateHealth(float framerate) {
 
   for (set<TurretFactory::TurretType>::iterator iter = turrets.begin(); iter
       != turrets.end(); ++iter) {
-    float damage = turretFactory->getTurret(*iter)->damage(1) * framerate;
+    float damage = turretFactory->getTurret(*iter)->damage(curTile.getNumCreeps()) * framerate;
     health -= damage;
   }
   if (health <= 0.0f) {
@@ -82,8 +82,14 @@ void Creep::updatePosition(float framerate) {
 
       //In case we reached the end
       if (currentTile != maze->getNumTiles() - 1) {
+        maze->joinTile(currentTile);
+        if (currentTile > 0) {
+          maze->leaveTile(currentTile-1);
+        }
         currentTile++;
       } else {
+        //join the last one so counts are set appropriately
+        maze->leaveTile(currentTile-1);
         status = CREEP_ESCAPED;
         return;
       }

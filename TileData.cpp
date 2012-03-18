@@ -7,7 +7,7 @@
 
 #include "TileData.h"
 
-TileData::TileData() {
+TileData::TileData() : numCreeps(0) {
   // TODO Auto-generated constructor stub
 
 }
@@ -22,4 +22,16 @@ void TileData::addTurret(TurretFactory::TurretType type) {
 
 set<TurretFactory::TurretType> TileData::getTurrets() {
   return turrets;
+}
+
+void TileData::addCreep() {
+  numCreeps++;
+}
+
+void TileData::removeCreep() {
+  numCreeps--;
+}
+
+int TileData::getNumCreeps() {
+  return numCreeps;
 }

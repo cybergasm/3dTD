@@ -71,6 +71,16 @@ class Maze {
      * Returns tile data
      */
     TileData getTileData(unsigned int index);
+
+    /**
+     * Adds a creep to the specified tile
+     */
+    void joinTile(unsigned int index);
+
+    /**
+     * Leaves the specified tile
+     */
+    void leaveTile(unsigned int index);
   private:
     //The string representing the type of maze to draw. This string can have
     //one of four letters:

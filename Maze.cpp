@@ -18,7 +18,8 @@
   }\
 }
 
-Maze::Maze(string mazeString_, Shader* psystemShader, TurretFactory* turretFactory_) :
+Maze::Maze(string mazeString_, Shader* psystemShader,
+    TurretFactory* turretFactory_) :
   mazeString(mazeString_), tileWidth(.5), tileDepth(.5), tileSpacing(.05),
       particleSystemShader(psystemShader), turretFactory(turretFactory_),
       tile(tileWidth, tileDepth), numTilesForward(0), numTilesLeft(0),
@@ -51,6 +52,19 @@ float Maze::getTileSpacing() {
   return tileSpacing;
 }
 
+void Maze::joinTile(unsigned int index) {
+  TileData tile = tileData.at(index);
+  tile.addCreep();
+  tileData.erase(tileData.begin() + index);
+  tileData.insert(tileData.begin() + index, tile);
+}
+
+void Maze::leaveTile(unsigned int index) {
+  TileData tile = tileData.at(index);
+  tile.removeCreep();
+  tileData.erase(tileData.begin() + index);
+  tileData.insert(tileData.begin() + index, tile);
+}
 TileData Maze::getTileData(unsigned int index) {
   if (index >= tileData.size()) return TileData();
 
