@@ -87,6 +87,16 @@ class CreepManager {
      */
     int numEscapedCreeps;
     int numDeadCreeps;
+
+    /**
+     * Health with which creeps are created
+     */
+    unsigned int health;
+
+    /**
+     * Number of creeps made
+     */
+    unsigned int numCreepsMade;
 };
 
 #endif /* CREEPMANAGER_H_ */

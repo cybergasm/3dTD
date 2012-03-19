@@ -103,6 +103,13 @@ int numCreepsDead = 0;
 //The font we use to write to screen
 OGLFT::Monochrome* hudText;
 
+/**
+ * Currency values
+ */
+float soulPoints = 100.0f;
+//timer for when we give points back
+float soulPointIncrease = 0.0f;
+
 void glInit() {
 #ifdef FRAMEWORK_USE_GLEW
   GLint error = glewInit();
@@ -241,12 +248,15 @@ void keyPressed(sf::Key::Code key) {
   } else if (key == sf::Key::Q) {
     //Move selected tile down
     maze->selectedDec();
-  } else if (key == sf::Key::Num1) {
+  } else if (key == sf::Key::Num1 && soulPoints > 10) {
     maze->addTurret(TurretFactory::FIRE_WHEEL);
-  } else if (key == sf::Key::Num2) {
+    soulPoints -= 10;
+  } else if (key == sf::Key::Num2 && soulPoints > 20) {
     maze->addTurret(TurretFactory::LIGHTNING);
-  } else if (key == sf::Key::Num3) {
+    soulPoints -= 20;
+  } else if (key == sf::Key::Num3 && soulPoints > 20) {
     maze->addTurret(TurretFactory::GRAVITY_RAIN);
+    soulPoints -= 20;
   } else if (key == sf::Key::Up) {
     //if last orientation is forward, we try up
     if (mazeString.at(mazeString.length() - 1) == 'f') {
@@ -279,9 +289,10 @@ void keyPressed(sf::Key::Code key) {
     } else if ((mazeString.at(mazeString.length() - 1) == 'l')) {
       tryAndAddForward();
     }
-  } else if (key == sf::Key::Return) {
+  } else if (key == sf::Key::Return && soulPoints > 5) {
     //confirm selection and add a new forward to choose
     mazeString += "f";
+    soulPoints -= 5;
   }
 }
 
@@ -449,9 +460,18 @@ void renderInstructions() {
  * this also does not change it to the color you would expect, but
  * it does change it to white which is better than black on black.
  */
-void updateScores() {
+void updateScores(float framerate) {
+  int newDead = creepManager->getNumDeadCreeps();
   numCreepsEscaped += creepManager->getNumEscapedCreeps();
-  numCreepsDead += creepManager->getNumDeadCreeps();
+  numCreepsDead += newDead;
+
+  soulPoints += newDead*10;
+  soulPointIncrease += 10*framerate;
+
+  if (soulPointIncrease > 10.0f) {
+    soulPoints += 3;
+    soulPointIncrease = 0.0f;
+  }
 
   //Give us a flat view to overlay the text
   glMatrixMode(GL_PROJECTION);
@@ -474,6 +494,9 @@ void updateScores() {
   formatter << "Evil killed: "<<numCreepsDead<<" Evil escaped: "<<numCreepsEscaped<<endl;
   hudText->draw(-1, -1, formatter.str().c_str());
 
+  stringstream formatter2;
+  formatter2<<"Soul points: "<<soulPoints<<endl;
+  hudText->draw(-1, -.8, formatter2.str().c_str());
   //Get the hell out of here and pretend I never wrote such hacky crap...
   GL_CHECK(glUseProgram(oldId));
 
@@ -502,7 +525,7 @@ int main() {
 
       renderScene();
 
-      updateScores();
+      updateScores(window.GetFrameTime());
 
       window.Display();
     } else {

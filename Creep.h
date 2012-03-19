@@ -20,7 +20,7 @@
 class Creep {
   public:
     Creep(Shader* creepShader, Maze* maze_, sf::Image* texture_,
-        TurretFactory* turretFactory);
+        TurretFactory* turretFactory, float health, float movementSpeed);
     virtual ~Creep();
 
     void render(float framerate);

@@ -9,7 +9,7 @@
 
 CreepManager::CreepManager(Maze* maze_, TurretFactory* turretFactory_) :
   nextCreepTime(0), maze(maze_), turretFactory(turretFactory_),
-      numEscapedCreeps(0), numDeadCreeps(0) {
+      numEscapedCreeps(0), numDeadCreeps(0), health(100), numCreepsMade(0) {
   // TODO Auto-generated constructor stub
   creepShader = new Shader("shaders/creep");
   if (!creepShader->loaded()) {
@@ -29,6 +29,10 @@ void CreepManager::updateTime(float framerate) {
   if (nextCreepTime <= 0.0f) return;
 
   nextCreepTime -= framerate * 10.0f;
+
+  if (numCreepsMade % 10 == 0){
+    health += 5;
+  }
 }
 
 int CreepManager::getNumDeadCreeps() {
@@ -45,8 +49,10 @@ int CreepManager::getNumEscapedCreeps() {
 
 void CreepManager::updateCreeps() {
   if (nextCreepTime <= 0.0f) {
-    creeps .push_back(Creep(creepShader, maze, &creepTexture, turretFactory));
+    float creepMovement = .12 + (rand() % 10)/100.0f;
+    creeps .push_back(Creep(creepShader, maze, &creepTexture, turretFactory, health, creepMovement));
     nextCreepTime = (10.0f + rand() % 20);
+    numCreepsMade++;
   }
 
   /**

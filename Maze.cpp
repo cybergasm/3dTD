@@ -105,7 +105,7 @@ MoveSequence Maze::getMove(unsigned int index) {
     } else if (prevTile == 'u') {
       move.distances.push_back(tileDepth + tileSpacing + .1);
     } else {
-      move.distances.push_back(tileDepth + tileSpacing);
+      move.distances.push_back(tileDepth + tileSpacing - .001);
     }
     move.directions.push_back(aiVector3D(0, 0, 1));
   } else if (tile == 'l') {

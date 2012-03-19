@@ -31,7 +31,7 @@ void GravityRain::render() {
 }
 
 float GravityRain::damage(int numCreeps) {
-  return 10.0f/(float) numCreeps;
+  return 15.0f/(float) numCreeps;
 }
 void GravityRain::initParticles() {
   aiVector3D vel;

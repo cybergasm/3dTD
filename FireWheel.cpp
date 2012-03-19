@@ -28,7 +28,7 @@ void FireWheel::render() {
 }
 
 float FireWheel::damage(int numCreeps) {
-  return 3.0f;
+  return 5.0f;
 }
 void FireWheel::initParticles() {
   aiVector3D vel;

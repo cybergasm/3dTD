@@ -23,11 +23,11 @@
 #include "oglft/OGLFT.h"
 
 Creep::Creep(Shader* creepShader, Maze* maze_, sf::Image* texture_,
-    TurretFactory* turretFactory_) :
+    TurretFactory* turretFactory_, float health_, float movementSpeed) :
   maze(maze_), turretFactory(turretFactory_), currentTile(0),
-      movementRate(.15), position(0.0f, .10f, 0.25f), distanceLeft(0.0f),
+      movementRate(movementSpeed), position(0.0f, .10f, 0.25f), distanceLeft(0.0f),
       shader(creepShader), width(.2), height(.2), texture(texture_),
-      status(CREEP_ALIVE), originalHealth(100), health(originalHealth) {
+      status(CREEP_ALIVE), originalHealth(health_), health(originalHealth) {
 
   for (int i = 0; i < 8; i++) {
     colors.push_back(aiVector3D(.2, 0.0, .7));
