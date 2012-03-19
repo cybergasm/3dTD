@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include <stdio.h>
+#include <sstream>
 
 #include "Framework.h"
 #include "Avatar.h"
@@ -11,6 +12,8 @@
 #include "TurretFactory.h"
 #include "Creep.h"
 #include "CreepManager.h"
+
+#include <oglft/OGLFT.h>
 
 using namespace std;
 
@@ -34,7 +37,7 @@ const int initWinWidth = 600;
 
 //Set-up the window settings and get a handle to a window
 sf::WindowSettings settings(24, 8, 2);
-sf::Window window(sf::VideoMode(initWinHeight, initWinWidth),
+sf::RenderWindow window(sf::VideoMode(initWinHeight, initWinWidth),
     "Tower Defense Rules!", sf::Style::Close, settings);
 
 /**
@@ -97,6 +100,8 @@ sf::Image instructionTexture;
  */
 int numCreepsEscaped = 0;
 int numCreepsDead = 0;
+//The font we use to write to screen
+OGLFT::Monochrome* hudText;
 
 void glInit() {
 #ifdef FRAMEWORK_USE_GLEW
@@ -163,6 +168,13 @@ void init() {
   window.ShowMouseCursor(false);
 
   instructionTexture.LoadFromFile("models/instructionscreen.jpg");
+
+  hudText = new OGLFT::Monochrome("fonts/KOMIKAGL.ttf", 24);
+
+  if (hudText == NULL || !hudText->isValid()) {
+    cerr << "Could not load font." << endl;
+    exit(-1);
+  }
 }
 /**
  * The following functions change how the maze looks based on user input.
@@ -292,6 +304,8 @@ void cleanup() {
   delete camera;
   delete particleSystemShader;
   delete maze;
+  delete creepManager;
+  delete simpleShader;
 }
 /**
  * Checks the event queue and delegates appropriately
@@ -427,6 +441,44 @@ void renderInstructions() {
   GL_CHECK(glUseProgram(oldId));
 
 }
+
+/**
+ * This function is, admittedly, a really big hack. I could
+ * not get the color to change using default libraries so I switched
+ * over to using my simple shader. But, as you might notice,
+ * this also does not change it to the color you would expect, but
+ * it does change it to white which is better than black on black.
+ */
+void updateScores() {
+  numCreepsEscaped += creepManager->getNumEscapedCreeps();
+  numCreepsDead += creepManager->getNumDeadCreeps();
+
+  //Give us a flat view to overlay the text
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+
+  GLint oldId;
+  glGetIntegerv(GL_CURRENT_PROGRAM, &oldId);
+
+  //This is simply to make it use the default color which was black
+  GL_CHECK(glUseProgram(simpleShader->programID()));
+
+  //I was told to do this...
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+  //figure out our text
+  stringstream formatter;
+  formatter << "Evil killed: "<<numCreepsDead<<" Evil escaped: "<<numCreepsEscaped<<endl;
+  hudText->draw(-1, -1, formatter.str().c_str());
+
+  //Get the hell out of here and pretend I never wrote such hacky crap...
+  GL_CHECK(glUseProgram(oldId));
+
+}
+
 int main() {
   glInit();
   init();
@@ -444,12 +496,14 @@ int main() {
       //move the manager forward
       creepManager->updateTime(window.GetFrameTime());
       creepManager->updateCreeps();
-      numCreepsEscaped += creepManager->getNumEscapedCreeps();
-      numCreepsDead += creepManager->getNumDeadCreeps();
-      cout<<"NUM DEAD: "<<numCreepsDead<<" NUM ESCAPED: "<<numCreepsEscaped<<endl;
+
       //update maze
       maze->mazeStringIs(mazeString);
+
       renderScene();
+
+      updateScores();
+
       window.Display();
     } else {
       window.Display();

@@ -20,6 +20,8 @@
 #include "MazeTile.h"
 #include "Turret.h"
 
+#include "oglft/OGLFT.h"
+
 Creep::Creep(Shader* creepShader, Maze* maze_, sf::Image* texture_,
     TurretFactory* turretFactory_) :
   maze(maze_), turretFactory(turretFactory_), currentTile(0),

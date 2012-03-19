@@ -21,3 +21,12 @@ I had help with specific concepts from:
 MODELS - 
  The spiral texture is
     http://www.tattoodonkey.com/black-spiral-infinite-flower/infiniteflower.com*wp-content*uploads*2011*01*spiral.jpg/
+    
+    
+TEXT - 
+  I used the following library for rendering text to screen as I could not get default SFML to work
+    http://oglft.sourceforge.net/
+    
+FONT - 
+  The font I used can be found here:
+    http://www.dafont.com/komika-glaze.font
