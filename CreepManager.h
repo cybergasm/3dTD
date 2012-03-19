@@ -39,6 +39,18 @@ class CreepManager {
      * Renders the creeps
      */
     void renderCreeps(float framerate);
+
+    /**
+     * Returns the number of creeps that died since the
+     * last time this function was called
+     */
+    int getNumDeadCreeps();
+
+    /**
+     * Returns the number of creeps that escaped since
+     * the last time this function was called
+     */
+    int getNumEscapedCreeps();
   private:
     /**
      * The current creeps
@@ -69,6 +81,12 @@ class CreepManager {
      * Turret factory for creep construction
      */
     TurretFactory* turretFactory;
+
+    /**
+     * Number of escaped and dead creeps
+     */
+    int numEscapedCreeps;
+    int numDeadCreeps;
 };
 
 #endif /* CREEPMANAGER_H_ */

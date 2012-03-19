@@ -92,6 +92,12 @@ bool instructions = true;
  */
 sf::Image instructionTexture;
 
+/**
+ * Score keeping
+ */
+int numCreepsEscaped = 0;
+int numCreepsDead = 0;
+
 void glInit() {
 #ifdef FRAMEWORK_USE_GLEW
   GLint error = glewInit();
@@ -438,6 +444,9 @@ int main() {
       //move the manager forward
       creepManager->updateTime(window.GetFrameTime());
       creepManager->updateCreeps();
+      numCreepsEscaped += creepManager->getNumEscapedCreeps();
+      numCreepsDead += creepManager->getNumDeadCreeps();
+      cout<<"NUM DEAD: "<<numCreepsDead<<" NUM ESCAPED: "<<numCreepsEscaped<<endl;
       //update maze
       maze->mazeStringIs(mazeString);
       renderScene();
