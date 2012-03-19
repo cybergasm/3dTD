@@ -110,6 +110,11 @@ float soulPoints = 100.0f;
 //timer for when we give points back
 float soulPointIncrease = 0.0f;
 
+/**
+ * Portal
+ */
+sf::Image portalTexture;
+
 void glInit() {
 #ifdef FRAMEWORK_USE_GLEW
   GLint error = glewInit();
@@ -163,18 +168,20 @@ void init() {
     cerr << simpleShader->errors() << endl;
     exit(-1);
   }
+
   avatar = new Avatar();
   avatar->setShader(particleSystemShader);
 
   camera = new Camera(nearClip, farClip, fov, initWinHeight, initWinWidth);
 
-  mazeString = "ff";
+  mazeString = "ffff";
   turretFactory = new TurretFactory(particleSystemShader);
   maze = new Maze(mazeString, particleSystemShader, turretFactory);
   creepManager = new CreepManager(maze, turretFactory);
   window.ShowMouseCursor(false);
 
   instructionTexture.LoadFromFile("models/instructionscreen.jpg");
+  portalTexture.LoadFromFile("models/creep_opacity_texture1.jpg");
 
   hudText = new OGLFT::Monochrome("fonts/KOMIKAGL.ttf", 24);
 
@@ -357,6 +364,66 @@ void handleInput() {
   }
 }
 
+void renderPortal() {
+  aiVector3D vertices[4] = { aiVector3D(-.5, 1, 0), aiVector3D(.5, 1, 0),
+      aiVector3D(.5, 0, 0), aiVector3D(-.5, 0, 0) };
+  aiVector3D texCoords[4] = { aiVector3D(0, 0, 0), aiVector3D(1, 0, 0),
+      aiVector3D(1, 1, 0), aiVector3D(0, 1, 0) };
+  unsigned int vertexIndex[4] = { 0, 1, 2, 3 };
+
+  GLint oldId;
+  glGetIntegerv(GL_CURRENT_PROGRAM, &oldId);
+  GL_CHECK(glUseProgram(simpleShader->programID()));
+
+  GLint positionIn = glGetAttribLocation(simpleShader->programID(),
+      "positionIn");
+  GLint texId = glGetAttribLocation(simpleShader->programID(), "texCoordIn");
+  GLint texture = glGetUniformLocation(simpleShader->programID(), "texture");
+  GLint textureFlag = glGetUniformLocation(simpleShader->programID(),
+      "texturing");
+
+  if (positionIn == -1) {
+    cerr << "Error getting position handle for instructions." << endl;
+  }
+
+  if (texId == -1) {
+    cerr << "Error getting texture coords handle for instructions." << endl;
+  }
+
+  if (texture == -1) {
+    cerr << "Error getting texture handle for instructions." << endl;
+  }
+
+  if (textureFlag == -1) {
+    cerr << "Error getting texturing flag for instructions." << endl;
+  }
+
+  GL_CHECK(glEnableVertexAttribArray(positionIn));
+  GL_CHECK(glEnableVertexAttribArray(texId));
+
+  glUniform1f(textureFlag, 1.0f);
+
+  glUniform1i(texture, 0);
+  glActiveTexture(GL_TEXTURE0);
+  portalTexture.Bind();
+
+  GL_CHECK(
+      glVertexAttribPointer(positionIn, 3, GL_FLOAT, 0, sizeof(aiVector3D),
+          &vertices[0]));
+  GL_CHECK(
+      glVertexAttribPointer(texId, 3, GL_FLOAT, 0, sizeof(aiVector3D),
+          &texCoords[0]));
+
+  GL_CHECK(
+      glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT,
+          &vertexIndex[0]));
+
+  GL_CHECK(glDisableVertexAttribArray(positionIn));
+  GL_CHECK(glDisableVertexAttribArray(texId));
+
+  GL_CHECK(glUseProgram(oldId));
+}
+
 void renderScene() {
   camera->posCameraSetupView();
 
@@ -366,16 +433,7 @@ void renderScene() {
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  glPushMatrix();
-  //Debugging triangle. This helps me not get lost in the scene :D
-  glColor4f(.23, .25, .9, .1);
-  glBegin(GL_TRIANGLES);
-  glVertex3f(-.5, 0, 0);
-  glVertex3f(.5, 0, 0);
-  glVertex3f(0, .5, 0);
-  glEnd();
-
-  glPopMatrix();
+  renderPortal();
   maze->render(window.GetFrameTime());
   creepManager->renderCreeps(window.GetFrameTime());
   avatar->render(window.GetFrameTime());
@@ -465,11 +523,11 @@ void updateScores(float framerate) {
   numCreepsEscaped += creepManager->getNumEscapedCreeps();
   numCreepsDead += newDead;
 
-  soulPoints += newDead*10;
-  soulPointIncrease += 10*framerate;
+  soulPoints += newDead * 10;
+  soulPointIncrease += 10 * framerate;
 
   if (soulPointIncrease > 10.0f) {
-    soulPoints += 3;
+    soulPoints += 1;
     soulPointIncrease = 0.0f;
   }
 
@@ -491,11 +549,12 @@ void updateScores(float framerate) {
 
   //figure out our text
   stringstream formatter;
-  formatter << "Evil killed: "<<numCreepsDead<<" Evil escaped: "<<numCreepsEscaped<<endl;
+  formatter << "Evil killed: " << numCreepsDead << " Evil escaped: "
+      << numCreepsEscaped << endl;
   hudText->draw(-1, -1, formatter.str().c_str());
 
   stringstream formatter2;
-  formatter2<<"Soul points: "<<soulPoints<<endl;
+  formatter2 << "Soul points: " << soulPoints << endl;
   hudText->draw(-1, -.8, formatter2.str().c_str());
   //Get the hell out of here and pretend I never wrote such hacky crap...
   GL_CHECK(glUseProgram(oldId));

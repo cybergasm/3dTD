@@ -31,7 +31,7 @@ void CreepManager::updateTime(float framerate) {
   nextCreepTime -= framerate * 10.0f;
 
   if (numCreepsMade % 10 == 0){
-    health += 5;
+    health += 2;
   }
 }
 
